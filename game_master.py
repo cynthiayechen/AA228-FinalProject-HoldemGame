@@ -26,14 +26,18 @@ class player:
     1: check
     2: fold
     '''
-    def act(self, ranks) -> int:
+    def get_action(self, ranks) -> int:
         p = random.randint(0, 99)
         if ranks <= self.n1:
             return ([0]*70 + [1]*20 + [2]*10)[p]
-        elif ranks <= n2:
+        elif ranks <= self.n2:
             return ([1]*70 + [0]*20 + [2]*10)[p]
         else:
             return ([2]*70 + [1]*20 + [0]*10)[p]
+
+    def __repr__(self) -> str:
+        return 'Player has used {} chips.'.format(self.chips)
+
 
 '''
 This class defines the behavior of the agent.
@@ -43,6 +47,7 @@ class agent:
     def __init__(self, strategy='random') -> None:
         self.strategy = strategy
         self.strategy_from_file = None
+        self.chips = 0 # used chips
 
     def get_action(self, s) -> int:
         assert s <= 6
@@ -55,6 +60,9 @@ class agent:
             # read from file first
             self.get_strategy_from_file(self.strategy)
             return random.choice(self.strategy_from_file[s])
+
+    def __repr__(self) -> str:
+        return 'Agent has used {} chips.'.format(self.chips)
 
     def get_randon_action(self) -> int:
         return random.randint(0, 2)
@@ -71,5 +79,39 @@ This class defines the entire game (one round) with the perspective of
 the agent. The game follows the MDP model.
 '''
 class game:
-    def __init__(self) -> None:
+    def __init__(self, agent_no = 0, small_blind_no = 0, num_player = 4) -> None:
+        self.small_blind_no = small_blind_no
+        self.num_player = num_player
+        self.players = dict([(i,player(3, 7)) for i in range(num_player)]) # counter clockwise
+        self.agent = agent_no
+        self.players[self.agent] = agent()
+
+    def start_game(self) -> None:
+        self.compulsory_bets()
+
+    def compulsory_bets(self) -> None:
+        for i, p in self.players.items():
+            if i == self.small_blind_no:
+                p.chips = 1
+            if i == (self.small_blind_no + 1) % self.num_player:
+                p.chips = 2
+    
+    def pre_flop(self) -> None:
         pass
+
+    def flop(self) -> None:
+        pass
+
+    def turn(self) -> None:
+        pass
+
+    def river(self) -> None:
+        pass
+
+    def fold(self) -> None:
+        pass
+
+if __name__ == "__main__":
+    g = game()
+    g.start_game()
+    print(g.players)
