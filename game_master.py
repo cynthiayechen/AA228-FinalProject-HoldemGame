@@ -20,6 +20,8 @@ class player:
         self.n1 = n1
         self.n2 = n2
         self.chips = 0 # used chips
+        self.card1 = None
+        self.card2 = None
 
     '''
     0: raise
@@ -48,6 +50,8 @@ class agent:
         self.strategy = strategy
         self.strategy_from_file = None
         self.chips = 0 # used chips
+        self.card1 = None
+        self.card2 = None
 
     def get_action(self, s) -> int:
         assert s <= 6
@@ -77,6 +81,13 @@ class agent:
 '''
 This class defines the entire game (one round) with the perspective of 
 the agent. The game follows the MDP model.
+Game State:
+0 Before Start
+1 Compulsory Bets
+2 Pre Flop
+3 Flop
+4 Turn
+5 River
 '''
 class game:
     def __init__(self, agent_no = 0, small_blind_no = 0, num_player = 4) -> None:
@@ -85,6 +96,12 @@ class game:
         self.players = dict([(i,player(3, 7)) for i in range(num_player)]) # counter clockwise
         self.agent = agent_no
         self.players[self.agent] = agent()
+        self.CD1 = None # CD: community card
+        self.CD2 = None
+        self.CD3 = None
+        self.CD4 = None
+        self.CD5 = None
+        self.state = 0
 
     def start_game(self) -> None:
         self.compulsory_bets()
@@ -95,6 +112,7 @@ class game:
                 p.chips = 1
             if i == (self.small_blind_no + 1) % self.num_player:
                 p.chips = 2
+        self.state = 1
     
     def pre_flop(self) -> None:
         pass
@@ -106,9 +124,6 @@ class game:
         pass
 
     def river(self) -> None:
-        pass
-
-    def fold(self) -> None:
         pass
 
 if __name__ == "__main__":
