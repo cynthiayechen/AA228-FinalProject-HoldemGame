@@ -90,11 +90,12 @@ Game State:
 5 River
 '''
 class game:
-    def __init__(self, agent_no = 0, small_blind_no = 0, num_player = 4) -> None:
+    def __init__(self, agent_no = 0, small_blind_no = 0, num_player = 4, raise_amount = 3) -> None:
         self.small_blind_no = small_blind_no
         self.num_player = num_player
         self.players = dict([(i,player(3, 7)) for i in range(num_player)]) # counter clockwise
         self.agent = agent_no
+        self,raise_amount = raise_amount
         self.players[self.agent] = agent()
         self.CD1 = None # CD: community card
         self.CD2 = None
@@ -102,6 +103,7 @@ class game:
         self.CD4 = None
         self.CD5 = None
         self.state = 0
+        self.chips_in_pool = 0
 
     def start_game(self) -> None:
         self.compulsory_bets()
@@ -113,17 +115,35 @@ class game:
             if i == (self.small_blind_no + 1) % self.num_player:
                 p.chips = 2
         self.state = 1
+        self.chips_in_pool = 3
     
     def pre_flop(self) -> None:
+        # deal two cards
+        # each player acts
         pass
 
     def flop(self) -> None:
+        # 3 community cards
+        # each player acts
         pass
 
     def turn(self) -> None:
+        # 4th community card
+        # each player acts
         pass
 
     def river(self) -> None:
+        # 5th community card
+        # each player acts
+        pass
+
+    def get_rank(self) -> int:
+        pass
+
+    '''
+    Only computes the reward of the agent.
+    '''
+    def compute_reward(self) -> int:
         pass
 
 if __name__ == "__main__":
