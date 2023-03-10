@@ -137,7 +137,10 @@ class game:
         # each player acts
         pass
 
-    def get_rank(self) -> int:
+    '''
+    Read information from the cards field in player.
+    '''
+    def get_rank(self, player) -> int:
         pass
 
     '''
