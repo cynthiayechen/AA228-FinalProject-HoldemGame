@@ -1,4 +1,8 @@
+from ast import Tuple
 import random
+
+COLOR = [0, 1, 2, 3] # club, spade, heart, dimond
+NUMBER = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
 
 '''
 The class defines the behavior of a player. It needs the parameters num1, num2 
@@ -88,14 +92,16 @@ Game State:
 3 Flop
 4 Turn
 5 River
+
+For simplicity, let small blind to be player -2, and big blind to be player -1.
+Need to pass in the number of the agent.
 '''
 class game:
-    def __init__(self, agent_no = 0, small_blind_no = 0, num_player = 4, raise_amount = 3) -> None:
-        self.small_blind_no = small_blind_no
+    def __init__(self, agent_no = 0, num_player = 4, raise_amount = 3) -> None:
         self.num_player = num_player
-        self.players = dict([(i,player(3, 7)) for i in range(num_player)]) # counter clockwise
+        self.players = dict([(i,player(3, 7)) for i in range(num_player)]) # clockwise
         self.agent = agent_no
-        self,raise_amount = raise_amount
+        self.raise_amount = raise_amount
         self.players[self.agent] = agent()
         self.CD1 = None # CD: community card
         self.CD2 = None
@@ -104,23 +110,54 @@ class game:
         self.CD5 = None
         self.state = 0
         self.chips_in_pool = 0
+        self.card_in_use = set()
+        self.current_call = 0
 
-    def start_game(self) -> None:
+    def start_game(self) -> int:
         self.compulsory_bets()
+        if self.pre_flop():
+            return -1 * self.players[self.agent].chips
 
     def compulsory_bets(self) -> None:
         for i, p in self.players.items():
-            if i == self.small_blind_no:
+            if i == self.num_player - 2:
                 p.chips = 1
-            if i == (self.small_blind_no + 1) % self.num_player:
+            if i == self.num_player - 1:
                 p.chips = 2
         self.state = 1
         self.chips_in_pool = 3
+        self.current_call = 2
     
-    def pre_flop(self) -> None:
+    def pre_flop(self) -> bool:
         # deal two cards
         # each player acts
-        pass
+        self.CD1, self.CD2 = self.deal_card(), self.deal_card()
+        finished = False
+        while not finished:
+            temp_dict = dict(self.players)
+            for i, p in temp_dict.items():
+                # agent
+                if i == self.agent:
+                    action = p.get_action(2)
+                    if action == 2:
+                        return True
+                # non agent
+                else:
+                    action = p.get_action(self.get_rank(p))
+                    if action == 2:
+                        self.players.pop(i)
+                if action == 0:
+                    self.chips_in_pool += (self.raise_amount + self.current_call)
+                    self.players[i].chips += (self.raise_amount + self.current_call)
+                    self.current_call += self.raise_amount
+                    finished = False
+                elif action == 1:
+                    self.chips_in_pool += self.current_call
+                    self.players[i].chips += self.current_call
+                    finished &= True
+            self.players = dict(temp_dict)
+        return False
+
 
     def flop(self) -> None:
         # 3 community cards
@@ -141,13 +178,23 @@ class game:
     Read information from the cards field in player.
     '''
     def get_rank(self, player) -> int:
-        pass
+        return 1
 
     '''
     Only computes the reward of the agent.
     '''
     def compute_reward(self) -> int:
         pass
+
+    '''
+    The method actually draws the card.
+    '''
+    def deal_card(self) -> Tuple(int, int):
+        while True:
+            color, number = random.choice(COLOR), random.choice(NUMBER)
+            if (color, number) not in self.card_in_use:
+                self.card_in_use.add((color, number))
+                return ((color, number))
 
 if __name__ == "__main__":
     g = game()
