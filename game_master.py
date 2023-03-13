@@ -34,6 +34,7 @@ class player:
     2: fold
     '''
     def get_action(self, ranks) -> int:
+        return random.randint(0,1)
         p = random.randint(0, 99)
         if ranks <= self.n1:
             return ([0]*70 + [1]*20 + [2]*10)[p]
@@ -100,7 +101,7 @@ For simplicity, let small blind to be player -2, and big blind to be player -1.
 Need to pass in the player number of the agent, default to be 0.
 '''
 class game:
-    def __init__(self, agent_no = 0, num_player = 4, raise_amount = 3) -> None:
+    def __init__(self, agent_no = 0, num_player = 4, raise_amount = 5) -> None:
         self.num_player = num_player
         self.players = dict([(i,player(3, 7)) for i in range(num_player)]) # clockwise
         self.agent = agent_no
@@ -184,7 +185,6 @@ class game:
         # each player acts
         self.state = 5
         self.CD5 = self.deal_card()
-        if self.betting_round(): return True
         return self.betting_round()
 
     '''
@@ -214,11 +214,12 @@ class game:
     '''
     The method actually draws the card.
     '''
-    def deal_card(self) -> Tuple(int, int):
+    def deal_card(self, need_add = True) -> Tuple(int, int):
         while True:
             color, number = random.choice(COLOR), random.choice(NUMBER)
             if (color, number) not in self.card_in_use:
-                self.card_in_use.add((color, number))
+                if need_add:
+                    self.card_in_use.add((color, number))
                 return ((color, number))
 
     '''
@@ -243,17 +244,16 @@ class game:
             
             # not folding
             if action == 0:
-                self.chips_in_pool += (self.raise_amount + self.current_call)
-                self.players[i].chips += (self.raise_amount + self.current_call)
-                self.current_call += self.raise_amount
-                self.players[i].current_call = self.current_call
+                self.players[i].current_call += self.raise_amount
+                self.chips_in_pool += self.raise_amount
+                self.players[i].chips += self.raise_amount
+                self.current_call = self.players[i].current_call
                 finished = False
             elif action == 1:
                 self.chips_in_pool += (self.current_call - self.players[i].current_call)
                 self.players[i].chips += (self.current_call - self.players[i].current_call)
                 self.players[i].current_call = self.current_call
                 finished &= True
-        self.players = dict(temp_dict)
         if finished: return False
 
         # second round -> only check or fold
@@ -275,7 +275,6 @@ class game:
                 self.chips_in_pool += (self.current_call - self.players[i].current_call)
                 self.players[i].chips += (self.current_call - self.players[i].current_call)
                 self.players[i].current_call = self.current_call
-        self.players = dict(temp_dict)
 
         return False
 
