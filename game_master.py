@@ -87,9 +87,7 @@ class agent:
         with open(file_name, 'r') as f:
             reader = csv.reader(f)
             for i, action in enumerate(reader):
-                self.strategy_from_file[i + 1] = action
-
-        print(self.strategy_from_file)
+                self.strategy_from_file[i + 2] = int(action[0])
 
 '''
 This class defines the entire game (one round) with the perspective of 
@@ -106,7 +104,7 @@ For simplicity, let small blind to be player -2, and big blind to be player -1.
 Need to pass in the player number of the agent, default to be 0.
 '''
 class game:
-    def __init__(self, agent_no = 0, num_player = 4, raise_amount = 5, agent_policy = 'random') -> None:
+    def __init__(self, agent_no = 0, num_player = 4, raise_amount = 5, agent_policy = 'random', iter = 0) -> None:
         self.num_player = num_player
         self.players = dict([(i,player(3, 7)) for i in range(num_player)]) # clockwise
         self.agent = agent_no
@@ -121,44 +119,113 @@ class game:
         self.chips_in_pool = 0
         self.card_in_use = set()
         self.current_call = 0
+        self.trajectory = []
+        self.iter = iter # use for output to file
 
     def start_game(self) -> int:
         self.compulsory_bets()
+        prev_chips = self.players[self.agent].chips
+        d = dict()
+        d['s'] = self.state
         if self.pre_flop():
-            if self.num_player == 1: return self.chips_in_pool
-            return -1 * self.players[self.agent].chips
+            d['sp'] = 6
+            d['a'] = 2
+            if self.num_player == 1:
+                d['r'] = self.chips_in_pool
+            else:
+                d['r'] = -1 * self.players[self.agent].chips
+            self.trajectory.append(d)
+            return d['r']
 
         # clear out
         for _, p in self.players.items():
             p.current_call = 0
         self.current_call = 0
+        d = dict()
+        d['s'] = self.state
         if self.flop():
-            if self.num_player == 1: return self.chips_in_pool
-            return -1 * self.players[self.agent].chips
+            d['sp'] = 6
+            d['a'] = 2
+            if self.num_player == 1:
+                d['r'] = self.chips_in_pool
+            else:
+                d['r'] = -1 * self.players[self.agent].chips
+            self.trajectory.append(d)
+            return d['r']
 
-        if self.num_player == 1: return self.chips_in_pool
+        d = dict()
+        d['s'] = self.state
+        d['sp'] = self.state + 1
+        d['a'] = 1
+        if self.num_player == 1: 
+            d['r'] = self.chips_in_pool
+            self.trajectory.append(d)
+            return d['r']
+        d['r'] = -1 * self.players[self.agent].chips
+        self.trajectory.append(d)
 
         # clear out
         for _, p in self.players.items():
             p.current_call = 0
         self.current_call = 0
+        d = dict()
+        d['s'] = self.state
         if self.turn():
-            if self.num_player == 1: return self.chips_in_pool
-            return -1 * self.players[self.agent].chips
+            d['sp'] = 6
+            d['a'] = 2
+            if self.num_player == 1:
+                d['r'] = self.chips_in_pool
+            else:
+                d['r'] = -1 * self.players[self.agent].chips
+            self.trajectory.append(d)
+            return d['r']
 
-        if self.num_player == 1: return self.chips_in_pool
+        d = dict()
+        d['s'] = self.state
+        d['sp'] = self.state + 1
+        d['a'] = 1
+        if self.num_player == 1: 
+            d['r'] = self.chips_in_pool
+            self.trajectory.append(d)
+            return d['r']
+        d['r'] = -1 * self.players[self.agent].chips
+        self.trajectory.append(d)
 
         # clear out
         for _, p in self.players.items():
             p.current_call = 0
         self.current_call = 0
+        d = dict()
+        d['s'] = self.state
         if self.river():
-            if self.num_player == 1: return self.chips_in_pool
-            return -1 * self.players[self.agent].chips
+            d['sp'] = 6
+            d['a'] = 2
+            if self.num_player == 1:
+                d['r'] = self.chips_in_pool
+            else:
+                d['r'] = -1 * self.players[self.agent].chips
+            self.trajectory.append(d)
+            return d['r']
         
-        if self.num_player == 1: return self.chips_in_pool
+        d = dict()
+        d['s'] = self.state
+        d['sp'] = self.state + 1
+        d['a'] = 1
+        if self.num_player == 1: 
+            d['r'] = self.chips_in_pool
+            self.trajectory.append(d)
+            return d['r']
+        d['r'] = -1 * self.players[self.agent].chips
+        self.trajectory.append(d)
 
-        return self.compute_reward()
+        d = dict()
+        d['s'] = 5
+        d['sp'] = 5
+        d['r'] = self.compute_reward()
+        d['a'] = 1
+        self.trajectory.append(d)
+
+        return d['r']
 
     def compulsory_bets(self) -> None:
         for i, p in self.players.items():
@@ -369,11 +436,29 @@ class game:
                 self.players[i].chips += self.raise_amount
                 self.current_call = self.players[i].current_call
                 finished = False
+
+                # update trajectory
+                if i == self.agent:
+                    d = dict()
+                    d['s'] = self.state
+                    d['a'] = action
+                    d['r'] = -1 * self.players[self.agent].chips
+                    d['sp'] = self.state
+                    self.trajectory.append(d)
             elif action == 1:
                 self.chips_in_pool += (self.current_call - self.players[i].current_call)
                 self.players[i].chips += (self.current_call - self.players[i].current_call)
                 self.players[i].current_call = self.current_call
                 finished &= True
+
+                # update trajectory
+                if i == self.agent:
+                    d = dict()
+                    d['s'] = self.state
+                    d['a'] = action
+                    d['r'] = -1 * self.players[self.agent].chips
+                    d['sp'] = self.state
+                    self.trajectory.append(d)
         if finished: return False
 
         # second round -> only check or fold
@@ -399,12 +484,21 @@ class game:
 
         return False
 
+    def output_to_file(self, file_name) -> None:
+        fields = ['s', 'r', 'a', 'sp']
+        with open(file_name, 'a', newline='') as file: 
+            writer = csv.DictWriter(file, fieldnames = fields)
+            if self.iter == 0: writer.writeheader() 
+            writer.writerows(self.trajectory)
+
 if __name__ == "__main__":
     iterations = int(sys.argv[1])
     for i in range(iterations):
         print("Round {}:".format(i))
-        g = game(agent_policy = 'small.policy')
+        g = game(agent_policy = 'small.policy', iter = i)
         print(g.start_game())
-        print(g.players)
-        print(g.CD1, g.CD2, g.CD3, g.CD4, g.CD5)
-        print(g.chips_in_pool)
+        # print(g.players)
+        # print(g.CD1, g.CD2, g.CD3, g.CD4, g.CD5)
+        # print(g.chips_in_pool)
+        print(g.trajectory)
+        g.output_to_file('t.csv')
