@@ -1,5 +1,6 @@
 # AA228-FinalProject-HoldemGame
 Final Project for CS238/AA228 Decision Making Under Uncertainty
+
 Policy Learner for poker Texas Holdem with our self implemented game simulator
 
 ## File Structure
@@ -19,5 +20,5 @@ Three optional parameters:
 - input file name (.policy) for the agent (default small.policy)
 - output file name (.csv) to output state transitions (Default small.csv)
 ```
-python3 game_master.py <*iter*> [-i <*input_name>] [-o <*output_name*>]
+python3 game_master.py [-n <*iter*>] [-i <*input_name>] [-o <*output_name*>]
 ```
