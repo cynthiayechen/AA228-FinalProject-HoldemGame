@@ -75,6 +75,7 @@ class agent:
         return 'Agent has used {} chips and has cards {} and {}\n'.format(self.chips, self.card1, self.card2)
 
     def get_randon_action(self) -> int:
+        return 1
         return random.randint(0, 2)
     
     '''
@@ -190,7 +191,7 @@ class game:
     Read information from the cards field in player.
     '''
     def get_rank(self, player) -> int:
-        return 5
+        return random.randint(0, 10)
 
     '''
     Only computes the reward of the agent.
@@ -198,7 +199,7 @@ class game:
     '''
     def compute_reward(self) -> int:
         num = 1
-        rank = self.get_rank(self.self.players[self.agent])
+        rank = self.get_rank(self.players[self.agent])
         for i, p in self.players.items():
             if i == self.agent: continue
             r = self.get_rank(p)
