@@ -18,7 +18,7 @@ Policy Learner for poker Texas Holdem with our self implemented game simulator
 Three optional parameters:
 - number of iterations (default 5)
 - input file name (.policy) for the agent (default small.policy)
-- output file name (.csv) to output state transitions (Default small.csv)
+- output file name (.csv) to output state transitions (default small.csv)
 ```
 python3 game_master.py [-n <*iter*>] [-i <*input_name>] [-o <*output_name*>]
 ```
