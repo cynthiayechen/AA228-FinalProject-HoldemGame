@@ -2,6 +2,7 @@ from ast import Tuple
 import random
 import sys
 import csv
+import argparse
 
 COLOR = [0, 1, 2, 3] # club, spade, heart, dimond
 NUMBER = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
@@ -486,19 +487,28 @@ class game:
 
     def output_to_file(self, file_name) -> None:
         fields = ['s', 'r', 'a', 'sp']
-        with open(file_name, 'a', newline='') as file: 
-            writer = csv.DictWriter(file, fieldnames = fields)
-            if self.iter == 0: writer.writeheader() 
-            writer.writerows(self.trajectory)
+        if self.iter == 0:
+            with open(file_name, 'w', newline='') as file: 
+                writer = csv.DictWriter(file, fieldnames = fields)
+                writer.writeheader() 
+                writer.writerows(self.trajectory)
+        else:
+            with open(file_name, 'a', newline='') as file: 
+                writer = csv.DictWriter(file, fieldnames = fields)
+                writer.writerows(self.trajectory)
 
 if __name__ == "__main__":
-    iterations = int(sys.argv[1])
-    for i in range(iterations):
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-n", "--iterations", help="number of iterations", type=int, required=False, default=5)
+    parser.add_argument("-i", "--input", help="input file", type=str, required=False, default='small.policy')
+    parser.add_argument("-o", "--output", help="output file", type=str, required=False, default='small.csv')
+    args = parser.parse_args()
+    for i in range(args.iterations):
         print("Round {}:".format(i))
-        g = game(agent_policy = 'small.policy', iter = i)
+        g = game(agent_policy = args.input, iter = i)
         print(g.start_game())
         # print(g.players)
         # print(g.CD1, g.CD2, g.CD3, g.CD4, g.CD5)
         # print(g.chips_in_pool)
         print(g.trajectory)
-        g.output_to_file('t.csv')
+        g.output_to_file(args.output)
