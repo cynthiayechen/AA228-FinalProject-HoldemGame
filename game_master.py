@@ -1,5 +1,7 @@
 from ast import Tuple
 import random
+import sys
+import csv
 
 COLOR = [0, 1, 2, 3] # club, spade, heart, dimond
 NUMBER = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
@@ -53,7 +55,7 @@ The parameter is the file containing the strategy, default to be random.
 class agent:
     def __init__(self, strategy='random') -> None:
         self.strategy = strategy
-        self.strategy_from_file = None
+        self.strategy_from_file = dict()
         self.chips = 0 # used chips
         self.card1 = None
         self.card2 = None
@@ -63,13 +65,13 @@ class agent:
         assert s <= 6
         if self.strategy == 'random':
             return self.get_randon_action()
-        elif not self.strategy_from_file:
+        elif len(self.strategy_from_file.keys()) != 0:
             # already read from file
-            return random.choice(self.strategy_from_file[s])
+            return self.strategy_from_file[s]
         else:
             # read from file first
             self.get_strategy_from_file(self.strategy)
-            return random.choice(self.strategy_from_file[s])
+            return self.strategy_from_file[s]
 
     def __repr__(self) -> str:
         return 'Agent has used {} chips and has cards {} and {}\n'.format(self.chips, self.card1, self.card2)
@@ -82,7 +84,12 @@ class agent:
     as a dict() into the class field.
     '''
     def get_strategy_from_file(self, file_name) -> None:
-        pass
+        with open(file_name, 'r') as f:
+            reader = csv.reader(f)
+            for i, action in enumerate(reader):
+                self.strategy_from_file[i + 1] = action
+
+        print(self.strategy_from_file)
 
 '''
 This class defines the entire game (one round) with the perspective of 
@@ -99,12 +106,12 @@ For simplicity, let small blind to be player -2, and big blind to be player -1.
 Need to pass in the player number of the agent, default to be 0.
 '''
 class game:
-    def __init__(self, agent_no = 0, num_player = 4, raise_amount = 5) -> None:
+    def __init__(self, agent_no = 0, num_player = 4, raise_amount = 5, agent_policy = 'random') -> None:
         self.num_player = num_player
         self.players = dict([(i,player(3, 7)) for i in range(num_player)]) # clockwise
         self.agent = agent_no
         self.raise_amount = raise_amount
-        self.players[self.agent] = agent()
+        self.players[self.agent] = agent(strategy=agent_policy)
         self.CD1 = None # CD: community card
         self.CD2 = None
         self.CD3 = None
@@ -393,8 +400,11 @@ class game:
         return False
 
 if __name__ == "__main__":
-    g = game()
-    print(g.start_game())
-    print(g.players)
-    print(g.CD1, g.CD2, g.CD3, g.CD4, g.CD5)
-    print(g.chips_in_pool)
+    iterations = int(sys.argv[1])
+    for i in range(iterations):
+        print("Round {}:".format(i))
+        g = game(agent_policy = 'small.policy')
+        print(g.start_game())
+        print(g.players)
+        print(g.CD1, g.CD2, g.CD3, g.CD4, g.CD5)
+        print(g.chips_in_pool)
