@@ -34,7 +34,6 @@ class player:
     2: fold
     '''
     def get_action(self, ranks) -> int:
-        return random.randint(0,1)
         p = random.randint(0, 99)
         if ranks <= self.n1:
             return ([0]*70 + [1]*20 + [2]*10)[p]
@@ -76,7 +75,6 @@ class agent:
         return 'Agent has used {} chips and has cards {} and {}\n'.format(self.chips, self.card1, self.card2)
 
     def get_randon_action(self) -> int:
-        return 1
         return random.randint(0, 2)
     
     '''
@@ -120,6 +118,7 @@ class game:
     def start_game(self) -> int:
         self.compulsory_bets()
         if self.pre_flop():
+            if self.num_player == 1: return self.chips_in_pool
             return -1 * self.players[self.agent].chips
 
         # clear out
@@ -127,21 +126,30 @@ class game:
             p.current_call = 0
         self.current_call = 0
         if self.flop():
+            if self.num_player == 1: return self.chips_in_pool
             return -1 * self.players[self.agent].chips
+
+        if self.num_player == 1: return self.chips_in_pool
 
         # clear out
         for _, p in self.players.items():
             p.current_call = 0
         self.current_call = 0
         if self.turn():
+            if self.num_player == 1: return self.chips_in_pool
             return -1 * self.players[self.agent].chips
+
+        if self.num_player == 1: return self.chips_in_pool
 
         # clear out
         for _, p in self.players.items():
             p.current_call = 0
         self.current_call = 0
         if self.river():
+            if self.num_player == 1: return self.chips_in_pool
             return -1 * self.players[self.agent].chips
+        
+        if self.num_player == 1: return self.chips_in_pool
 
         return self.compute_reward()
 
@@ -189,15 +197,120 @@ class game:
 
     '''
     Read information from the cards field in player.
+
+    1: Royal Flush
+    2: Straight Flush
+    3: Four of a Kind
+    4: Full House
+    5: Flush
+    6: Straight
+    7: Three of a Kind
+    8: Two Pair
+    9: One Pair
+    10: High Card
     '''
     def get_rank(self, player) -> int:
-        return random.randint(0, 10)
+        # fill to 7 cards
+        cards = set()
+        cards.add(player.card1)
+        cards.add(player.card2)
+
+        cards.add(self.CD1)
+        cards.add(self.CD2)
+        cards.add(self.CD3)
+        cards.add(self.CD4)
+        cards.add(self.CD5)
+
+        cards = set(filter(lambda item: item is not None, cards))
+
+        while len(cards) != 7:
+            cards.add((random.choice(COLOR), random.choice(NUMBER)))
+
+        # start working on finding highest rank
+        cards = list(cards)
+
+        # find (royal) straight flush
+        cards.sort(key = lambda x: (x[0], x[1]))
+        cards_based_on_color = [[], [], [], []]
+        for color, number in cards:
+            cards_based_on_color[color].append((color, number))
+        has_straight_flush = False
+        straight_flush = []
+        for l in cards_based_on_color:
+            if len(l) < 5: continue
+            # same color more than or equal to 5 cards
+            if l[-1][1] - l[-5][1] == 4:
+                has_straight_flush = True
+                straight_flush = l[-5:-1]
+                straight_flush.append(l[-1])
+                break
+            elif len(l) == 6:
+                if l[-2][1] - l[-6][1] == 4:
+                    has_straight_flush = True
+                    straight_flush = l[-6:-1]
+                    break
+            elif len(l) == 7:
+                if l[-3][1] - l[-7][1] == 4:
+                    has_straight_flush = True
+                    straight_flush = l[-7:-2]
+                    break
+        if has_straight_flush:
+            if straight_flush[-1][1] == 13: return 1
+            return 2
+
+        # find four of a kind (number 4+1)
+        cards.sort(key = lambda x: (x[1], x[0]))
+        cards_based_on_number = [[] for _ in range(13)]
+        for color, number in cards:
+            cards_based_on_number[number - 1].append((color, number))
+        if any([len(n) >= 4 for n in cards_based_on_number]): return 3
+
+        # find full house (number 3+2)
+        has_3 = any([len(n) >= 3 for n in cards_based_on_number])
+        if has_3:
+            # need 2 pairs to ensure 3+2
+            has_2 = 0
+            for n in cards_based_on_number:
+                if len(n) >= 2:
+                    has_2 += 1
+            if has_2 >= 2: return 4
+
+        # find flush (color 5)
+        if any([len(n) >= 5 for n in cards_based_on_color]): return 5
+
+        # find straight
+        has_straight = False
+        for i in range(9):
+            if len(cards_based_on_number[i]) == 0: continue
+            if len(cards_based_on_number[i + 1]) == 0: continue
+            if len(cards_based_on_number[i + 2]) == 0: continue
+            if len(cards_based_on_number[i + 3]) == 0: continue
+            if len(cards_based_on_number[i + 4]) == 0: continue
+            has_straight = True
+            break
+        if has_straight: return 6
+
+        # find three of a kind (number 3+1+1)
+        if has_3: return 7
+
+        # find two pairs (number 2+2+1)
+        has_2 = 0
+        for n in cards_based_on_number:
+            if len(n) >= 2:
+                has_2 += 1
+        if has_2 >= 2: return 8
+
+        # find pair
+        if any([len(n) >= 2 for n in cards_based_on_number]): return 9
+
+        return 10
 
     '''
     Only computes the reward of the agent.
     Assume to be at state 5.
     '''
     def compute_reward(self) -> int:
+        if self.num_player == 1: return self.chips_in_pool
         num = 1
         rank = self.get_rank(self.players[self.agent])
         for i, p in self.players.items():
@@ -214,12 +327,11 @@ class game:
     '''
     The method actually draws the card.
     '''
-    def deal_card(self, need_add = True) -> Tuple(int, int):
+    def deal_card(self) -> Tuple(int, int):
         while True:
             color, number = random.choice(COLOR), random.choice(NUMBER)
             if (color, number) not in self.card_in_use:
-                if need_add:
-                    self.card_in_use.add((color, number))
+                self.card_in_use.add((color, number))
                 return ((color, number))
 
     '''
@@ -240,6 +352,7 @@ class game:
             else:
                 action = p.get_action(self.get_rank(p))
                 if action == 2:
+                    self.num_player -= 1
                     del self.players[i]
             
             # not folding
@@ -268,6 +381,7 @@ class game:
             else:
                 action = p.get_action(self.get_rank(p))
                 if action == 2:
+                    self.num_player -= 1
                     del self.players[i]
 
             # not folding
