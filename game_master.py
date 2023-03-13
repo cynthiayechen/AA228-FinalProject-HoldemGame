@@ -2,7 +2,7 @@ from ast import Tuple
 import random
 
 COLOR = [0, 1, 2, 3] # club, spade, heart, dimond
-NUMBER = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+NUMBER = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
 
 '''
 The class defines the behavior of a player. It needs the parameters num1, num2 
@@ -26,6 +26,7 @@ class player:
         self.chips = 0 # used chips
         self.card1 = None
         self.card2 = None
+        self.current_call = 0
 
     '''
     0: raise
@@ -42,7 +43,7 @@ class player:
             return ([2]*70 + [1]*20 + [0]*10)[p]
 
     def __repr__(self) -> str:
-        return 'Player has used {} chips.'.format(self.chips)
+        return 'Player has used {} chips, and has cards {} and {}\n'.format(self.chips, self.card1, self.card2)
 
 
 '''
@@ -56,6 +57,7 @@ class agent:
         self.chips = 0 # used chips
         self.card1 = None
         self.card2 = None
+        self.current_call = 0
 
     def get_action(self, s) -> int:
         assert s <= 6
@@ -70,7 +72,7 @@ class agent:
             return random.choice(self.strategy_from_file[s])
 
     def __repr__(self) -> str:
-        return 'Agent has used {} chips.'.format(self.chips)
+        return 'Agent has used {} chips and has cards {} and {}\n'.format(self.chips, self.card1, self.card2)
 
     def get_randon_action(self) -> int:
         return random.randint(0, 2)
@@ -118,12 +120,21 @@ class game:
         if self.pre_flop():
             return -1 * self.players[self.agent].chips
 
+        # clear out
+        for _, p in self.players.items():
+            p.current_call = 0
+        self.current_call = 0
+        if self.flop():
+            return -1 * self.players[self.agent].chips
+
     def compulsory_bets(self) -> None:
         for i, p in self.players.items():
             if i == self.num_player - 2:
                 p.chips = 1
+                p.current_call = 1
             if i == self.num_player - 1:
                 p.chips = 2
+                p.current_call = 2
         self.state = 1
         self.chips_in_pool = 3
         self.current_call = 2
@@ -131,38 +142,19 @@ class game:
     def pre_flop(self) -> bool:
         # deal two cards
         # each player acts
-        self.CD1, self.CD2 = self.deal_card(), self.deal_card()
-        finished = False
-        while not finished:
-            temp_dict = dict(self.players)
-            for i, p in temp_dict.items():
-                # agent
-                if i == self.agent:
-                    action = p.get_action(2)
-                    if action == 2:
-                        return True
-                # non agent
-                else:
-                    action = p.get_action(self.get_rank(p))
-                    if action == 2:
-                        self.players.pop(i)
-                if action == 0:
-                    self.chips_in_pool += (self.raise_amount + self.current_call)
-                    self.players[i].chips += (self.raise_amount + self.current_call)
-                    self.current_call += self.raise_amount
-                    finished = False
-                elif action == 1:
-                    self.chips_in_pool += self.current_call
-                    self.players[i].chips += self.current_call
-                    finished &= True
-            self.players = dict(temp_dict)
-        return False
+        for i, p in self.players.items():
+            p.card1, p.card2 = self.deal_card(), self.deal_card()
+        return self.betting_round()
+            
 
 
-    def flop(self) -> None:
+    def flop(self) -> bool:
         # 3 community cards
         # each player acts
-        pass
+        print("enter")
+        self.CD1, self.CD2, self.CD3 = self.deal_card(), self.deal_card(), self.deal_card()
+        return self.betting_round()
+        
 
     def turn(self) -> None:
         # 4th community card
@@ -178,7 +170,7 @@ class game:
     Read information from the cards field in player.
     '''
     def get_rank(self, player) -> int:
-        return 1
+        return 5
 
     '''
     Only computes the reward of the agent.
@@ -196,7 +188,67 @@ class game:
                 self.card_in_use.add((color, number))
                 return ((color, number))
 
+    '''
+    This method simulates the betting rounds.
+    '''
+    def betting_round(self) -> bool:
+        finished = False
+
+        # first round
+        temp_dict = dict(self.players)
+        for i, p in temp_dict.items():
+            # agent
+            if i == self.agent:
+                action = p.get_action(2)
+                if action == 2:
+                    return True
+            # non agent
+            else:
+                action = p.get_action(self.get_rank(p))
+                if action == 2:
+                    del self.players[i]
+            
+            # not folding
+            if action == 0:
+                self.chips_in_pool += (self.raise_amount + self.current_call)
+                self.players[i].chips += (self.raise_amount + self.current_call)
+                self.current_call += self.raise_amount
+                self.players[i].current_call = self.current_call
+                finished = False
+            elif action == 1:
+                self.chips_in_pool += (self.current_call - self.players[i].current_call)
+                self.players[i].chips += (self.current_call - self.players[i].current_call)
+                self.players[i].current_call = self.current_call
+                finished &= True
+        self.players = dict(temp_dict)
+        if finished: return False
+
+        # second round -> only check or fold
+        temp_dict = dict(self.players)
+        for i, p in temp_dict.items():
+            # agent
+            if i == self.agent:
+                action = p.get_action(2)
+                if action == 2:
+                    return True
+            # non agent
+            else:
+                action = p.get_action(self.get_rank(p))
+                if action == 2:
+                    del self.players[i]
+
+            # not folding
+            if action == 0 or action == 1:
+                self.chips_in_pool += (self.current_call - self.players[i].current_call)
+                self.players[i].chips += (self.current_call - self.players[i].current_call)
+                self.players[i].current_call = self.current_call
+        self.players = dict(temp_dict)
+
+        return False
+
 if __name__ == "__main__":
     g = game()
-    g.start_game()
+    print(g.start_game())
     print(g.players)
+    print(g.CD1, g.CD2, g.CD3, g.CD4, g.CD5)
+    print(g.chips_in_pool)
