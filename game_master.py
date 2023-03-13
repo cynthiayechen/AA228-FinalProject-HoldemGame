@@ -96,7 +96,7 @@ Game State:
 5 River
 
 For simplicity, let small blind to be player -2, and big blind to be player -1.
-Need to pass in the number of the agent.
+Need to pass in the player number of the agent, default to be 0.
 '''
 class game:
     def __init__(self, agent_no = 0, num_player = 4, raise_amount = 3) -> None:
@@ -127,6 +127,22 @@ class game:
         if self.flop():
             return -1 * self.players[self.agent].chips
 
+        # clear out
+        for _, p in self.players.items():
+            p.current_call = 0
+        self.current_call = 0
+        if self.turn():
+            return -1 * self.players[self.agent].chips
+
+        # clear out
+        for _, p in self.players.items():
+            p.current_call = 0
+        self.current_call = 0
+        if self.river():
+            return -1 * self.players[self.agent].chips
+
+        return self.compute_reward()
+
     def compulsory_bets(self) -> None:
         for i, p in self.players.items():
             if i == self.num_player - 2:
@@ -142,29 +158,33 @@ class game:
     def pre_flop(self) -> bool:
         # deal two cards
         # each player acts
+        self.state = 2
         for i, p in self.players.items():
             p.card1, p.card2 = self.deal_card(), self.deal_card()
         return self.betting_round()
-            
-
 
     def flop(self) -> bool:
         # 3 community cards
         # each player acts
-        print("enter")
+        self.state = 3
         self.CD1, self.CD2, self.CD3 = self.deal_card(), self.deal_card(), self.deal_card()
         return self.betting_round()
         
 
-    def turn(self) -> None:
+    def turn(self) -> bool:
         # 4th community card
         # each player acts
-        pass
+        self.state = 4
+        self.CD4 = self.deal_card()
+        return self.betting_round()
 
     def river(self) -> None:
         # 5th community card
         # each player acts
-        pass
+        self.state = 5
+        self.CD5 = self.deal_card()
+        if self.betting_round(): return True
+        return self.betting_round()
 
     '''
     Read information from the cards field in player.
@@ -174,9 +194,21 @@ class game:
 
     '''
     Only computes the reward of the agent.
+    Assume to be at state 5.
     '''
     def compute_reward(self) -> int:
-        pass
+        num = 1
+        rank = self.get_rank(self.self.players[self.agent])
+        for i, p in self.players.items():
+            if i == self.agent: continue
+            r = self.get_rank(p)
+            # if other player wins
+            if r < rank:
+                return -1 * self.players[self.agent].chips
+            # if ties
+            if r == rank:
+                num += 1
+        return self.chips_in_pool // num
 
     '''
     The method actually draws the card.
@@ -199,7 +231,7 @@ class game:
         for i, p in temp_dict.items():
             # agent
             if i == self.agent:
-                action = p.get_action(2)
+                action = p.get_action(self.state)
                 if action == 2:
                     return True
             # non agent
@@ -228,7 +260,7 @@ class game:
         for i, p in temp_dict.items():
             # agent
             if i == self.agent:
-                action = p.get_action(2)
+                action = p.get_action(self.state)
                 if action == 2:
                     return True
             # non agent
