@@ -81,6 +81,9 @@ class agent:
             return self.get_randon_action()
         elif len(self.strategy_from_file.keys()) != 0:
             # already read from file
+            if s not in self.strategy_from_file.keys():
+                print(s)
+                print(self.strategy_from_file)
             return self.strategy_from_file[s]
         else:
             # read from file first
@@ -101,7 +104,7 @@ class agent:
         with open(file_name, 'r') as f:
             reader = csv.reader(f)
             for i, action in enumerate(reader):
-                self.strategy_from_file[i + 2] = int(action[0])
+                self.strategy_from_file[i] = int(action[0])
 
 '''
 This class defines the entire game (one round) with the perspective of 
@@ -427,6 +430,7 @@ class game:
             player.rank = 8
             return
 
+        player.rank = 9
         return 9
 
     '''
@@ -562,7 +566,7 @@ class game:
                 p_set.remove(p_three_max)
                 p_set.remove(p_three_max)
                 p_set.remove(p_three_max)
-                for i in range[-1, -2]:
+                for i in [-1, -2]:
                     if a_list[i] < p_set[i]: return False, 0
                     if a_list[i] > p_set[i]:
                         tie = False
@@ -610,9 +614,9 @@ class game:
             agent_based_on_color = [[], [], [], []]
             for color, number in agent_set:
                 agent_based_on_color[color].append(number)
-            if len(agent_based_on_color[0]) == 5: agent_cards = agent_based_on_color[0]
-            elif len(agent_based_on_color[1]) == 5: agent_cards = agent_based_on_color[1]
-            elif len(agent_based_on_color[2]) == 5: agent_cards = agent_based_on_color[2]
+            if len(agent_based_on_color[0]) >= 5: agent_cards = agent_based_on_color[0]
+            elif len(agent_based_on_color[1]) >= 5: agent_cards = agent_based_on_color[1]
+            elif len(agent_based_on_color[2]) >= 5: agent_cards = agent_based_on_color[2]
             else: agent_cards = agent_based_on_color[3]
             agent_cards.sort()
             num = 1
@@ -623,15 +627,15 @@ class game:
                 p_based_on_color = [[], [], [], []]
                 for color, number in p_set:
                     p_based_on_color[color].append(number)
-                if len(p_based_on_color[0]) == 5: p_cards = p_based_on_color[0]
-                elif len(p_based_on_color[1]) == 5: p_cards = p_based_on_color[1]
-                elif len(p_based_on_color[2]) == 5: p_cards = p_based_on_color[2]
+                if len(p_based_on_color[0]) >= 5: p_cards = p_based_on_color[0]
+                elif len(p_based_on_color[1]) >= 5: p_cards = p_based_on_color[1]
+                elif len(p_based_on_color[2]) >= 5: p_cards = p_based_on_color[2]
                 else: p_cards = p_based_on_color[3]
                 p_cards.sort()
                 tie = True
                 for i in [4, 3, 2, 1, 0]:
                     if p_cards[i] > agent_cards[i]: return False, 0
-                    if p_cards[i] < agent_cards:
+                    if p_cards[i] < agent_cards[i]:
                         tie = False
                         break
                 if tie: num += 1
@@ -749,6 +753,7 @@ class game:
         for i, p in temp_dict.items():
             # agent
             if i == self.agent:
+                self.get_rank(p)
                 action = p.get_action(self.players[self.agent].state)
                 if action == 2:
                     return True
@@ -799,6 +804,7 @@ class game:
         for i, p in temp_dict.items():
             # agent
             if i == self.agent:
+                self.get_rank(p)
                 action = p.get_action(self.players[self.agent].state)
                 if action == 2:
                     return True
@@ -852,3 +858,14 @@ if __name__ == "__main__":
         # print(g.chips_in_pool)
         # print(g.trajectory)
         g.output_to_file(args.output)
+    # l = [(2, 4), (3, 8), (1, 11), (1, 1), (3, 3), (0, 5), (1, 9)]
+    # g = game(agent_policy='random')
+    # g.CD1 = l[0]
+    # g.CD2 = l[1]
+    # g.CD3 = l[2]
+    # g.CD4 = l[3]
+    # g.CD5 = l[4]
+    # g.players[g.agent].card1 = l[5]
+    # g.players[g.agent].card2 = l[6]
+    # g.get_rank(g.players[g.agent])
+    # print(g.players[g.agent].rank)
