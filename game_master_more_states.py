@@ -24,7 +24,7 @@ to define the actions, where 1 <= num1 < num2 < 10, and num1 and num2 are rankin
 The above numbers (10, 20, 70) can be modified.
 '''
 class player:
-    def __init__(self, n1, n2) -> None:
+    def __init__(self, n1, n2, l1, l2, l3) -> None:
         assert 1 <= n1
         assert n1 < n2
         assert n2 < 10
@@ -35,6 +35,12 @@ class player:
         self.card2 = None
         self.current_call = 0
         self.rank = 9
+        assert l1 >= l2
+        assert l2 >= l3
+        assert l1 + l2 + l3 == 100
+        self.l1 = l1
+        self.l2 = l2
+        self.l3 = l3
 
     '''
     0: raise
@@ -43,12 +49,13 @@ class player:
     '''
     def get_action(self, ranks) -> int:
         p = random.randint(0, 99)
+        l1, l2, l3 = self.l1, self.l2, self.l3
         if ranks <= self.n1:
-            return ([0]*70 + [1]*20 + [2]*10)[p]
+            return ([0]*l1 + [1]*l2 + [2]*l3)[p]
         elif ranks <= self.n2:
-            return ([1]*70 + [0]*20 + [2]*10)[p]
+            return ([1]*l1 + [0]*l2 + [2]*l3)[p]
         else:
-            return ([2]*70 + [1]*20 + [0]*10)[p]
+            return ([2]*l1 + [1]*l2 + [0]*l3)[p]
 
     def __repr__(self) -> str:
         return 'Player has used {} chips, and has cards {} and {}\n'.format(self.chips, self.card1, self.card2)
@@ -122,9 +129,9 @@ For simplicity, let small blind to be player -2, and big blind to be player -1.
 Need to pass in the player number of the agent, default to be 0.
 '''
 class game:
-    def __init__(self, agent_no = 0, num_player = 4, raise_amount = 5, agent_policy = 'random', iter = 0) -> None:
+    def __init__(self, agent_no = 0, num_player = 4, raise_amount = 5, agent_policy = 'random', iter = 0, n1 = 8, n2 = 9, l1 = 70, l2 = 20, l3 = 10) -> None:
         self.num_player = num_player
-        self.players = dict([(i,player(8, 9)) for i in range(num_player)]) # clockwise
+        self.players = dict([(i,player(n1, n2, l1, l2, l3)) for i in range(num_player)]) # clockwise
         self.agent = agent_no
         self.raise_amount = raise_amount
         self.players[self.agent] = agent(strategy=agent_policy)
@@ -828,10 +835,17 @@ if __name__ == "__main__":
     parser.add_argument("-n", "--iterations", help="number of iterations", type=int, required=False, default=5)
     parser.add_argument("-i", "--input", help="input file", type=str, required=False, default='big.policy')
     parser.add_argument("-o", "--output", help="output file", type=str, required=False, default='big.csv')
+    parser.add_argument("-g", "--agent_number", help="agent number", type=int, required=False, default=0)
+    parser.add_argument("-a", "--raise_amount", help="raise amount", type=int, required=False, default=5)
+    parser.add_argument("-n1", "--n1", help="n1", type=int, required=False, default=8)
+    parser.add_argument("-n2", "--n2", help="n2", type=int, required=False, default=9)
+    parser.add_argument("-l1", "--l1", help="l1", type=int, required=False, default=70)
+    parser.add_argument("-l2", "--l2", help="l2", type=int, required=False, default=20)
+    parser.add_argument("-l3", "--l3", help="l3", type=int, required=False, default=10)
     args = parser.parse_args()
     for i in range(args.iterations):
         print("Round {}:".format(i))
-        g = game(agent_policy = args.input, iter = i)
+        g = game(agent_no = args.agent_number, agent_policy = args.input, iter = i, raise_amount= args.raise_amount, n1 = args.n1, n2 = args.n2, l1 = args.l1, l2 = args.l2, l3 = args.l3)
         print(g.start_game())
         # print(g.players)
         # print(g.CD1, g.CD2, g.CD3, g.CD4, g.CD5)
