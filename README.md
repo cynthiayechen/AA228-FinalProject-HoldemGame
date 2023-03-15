@@ -39,3 +39,8 @@ Ten optional parameters for game_master_more_states.py:
 python3 game_master_more_states.py [-n <*iter*>] [-i <*input_name>] [-o <*output_name*>] [-g <*agent_number*>] [-a <*raise_amount*>] [-n1 <*n1*>] [-n2 <*n2*>] [-l1 <*l1*>] [-l2 <*l2*>] [-l3 <*l3*>]
 ```
 For more information, try `python3 game_master_more_states.py -h` for the helper information.
+
+
+## Note
+The .policy file for *game_master* should contain exactly 6 lines, where the 2nd to 5th line contain useful information.
+The .policy file for *game_master_more_states* should contain exactly 42 lines, where the 1st to 40th line contain useful information.
