@@ -330,15 +330,15 @@ class game:
                     straight_flush = l[-7:-2]
                     break
         if has_straight_flush:
-            if straight_flush[-1][1] == 13: return 1
-            return 2
+            if straight_flush[-1][1] == 13: return 0
+            return 1
 
         # find four of a kind (number 4+1)
         cards.sort(key = lambda x: (x[1], x[0]))
         cards_based_on_number = [[] for _ in range(13)]
         for color, number in cards:
             cards_based_on_number[number - 1].append((color, number))
-        if any([len(n) >= 4 for n in cards_based_on_number]): return 3
+        if any([len(n) >= 4 for n in cards_based_on_number]): return 2
 
         # find full house (number 3+2)
         has_3 = any([len(n) >= 3 for n in cards_based_on_number])
@@ -348,10 +348,10 @@ class game:
             for n in cards_based_on_number:
                 if len(n) >= 2:
                     has_2 += 1
-            if has_2 >= 2: return 4
+            if has_2 >= 2: return 3
 
         # find flush (color 5)
-        if any([len(n) >= 5 for n in cards_based_on_color]): return 5
+        if any([len(n) >= 5 for n in cards_based_on_color]): return 4
 
         # find straight
         has_straight = False
@@ -363,22 +363,300 @@ class game:
             if len(cards_based_on_number[i + 4]) == 0: continue
             has_straight = True
             break
-        if has_straight: return 6
+        if has_straight: return 5
 
         # find three of a kind (number 3+1+1)
-        if has_3: return 7
+        if has_3: return 6
 
         # find two pairs (number 2+2+1)
         has_2 = 0
         for n in cards_based_on_number:
             if len(n) >= 2:
                 has_2 += 1
-        if has_2 >= 2: return 8
+        if has_2 >= 2: return 7
 
         # find pair
-        if any([len(n) >= 2 for n in cards_based_on_number]): return 9
+        if any([len(n) >= 2 for n in cards_based_on_number]): return 8
 
-        return 10
+        return 9
+
+    '''
+    Breaks the tie.
+    If the agent loses with the same rank, return False and any number.
+    If the agent wins the tie, return True and the number of other candidates with the same winning status.
+    '''
+    def get_winner(self, rank, candidates) -> Tuple(bool, int):
+        cards = [self.CD1, self.CD2, self.CD3, self.CD4, self.CD5]
+
+        agent_set = list(cards)
+        agent_set.append(self.players[self.agent].card1)
+        agent_set.append(self.players[self.agent].card2)
+        agent_set.sort(key = lambda x: (x[1], x[0]))
+
+        # high card
+        if rank == 9:
+            num = 1
+            for p in candidates:
+                p_set = list(cards)
+                p_set.append(p.card1)
+                p_set.append(p.card2)
+                p_set.sort(key = lambda x: (x[1], x[0]))
+                tie = True
+                for i in [-1, -2, -3, -4, -5]:
+                    if agent_set[i][1] > p_set[i][1]:
+                        tie = False
+                        break
+                    elif agent_set[i][1] < p_set[i][1]:
+                        return False, 0
+                if tie: num += 1
+            return True, num
+        # one pair
+        elif rank == 8:
+            agent_set_based_on_number = [0 for _ in range(13)]
+            agent_pair_max = 1
+            num = 1
+            for _, number in agent_set:
+                agent_set_based_on_number[number - 1] += 1
+                if agent_set_based_on_number[number - 1] == 2: agent_pair_max = number
+            for p in candidates:
+                p_set = list(cards)
+                p_set.append(p.card1)
+                p_set.append(p.card2)
+                p_set.sort(key = lambda x: (x[1], x[0]))
+                p_set_based_on_number = [0 for _ in range(13)]
+                p_pair_max = 1
+                for _, number in p_set:
+                    p_set_based_on_number[number - 1] += 1
+                    if p_set_based_on_number[number - 1] == 2: p_pair_max = number
+                if p_pair_max > agent_pair_max: return False, 0
+                if p_pair_max < agent_pair_max: continue
+                a_list = [s for (_, s) in agent_set]
+                a_list.remove(agent_pair_max)
+                a_list.remove(agent_pair_max)
+                p_set = [s for (_, s) in p_set]
+                p_set.remove(p_pair_max)
+                p_set.remove(p_pair_max)
+                tie = True
+                a_list.sort()
+                p_set.sort()
+                for i in [-1, -2, -3]:
+                    if a_list[i] > p_set[i]:
+                        tie = False
+                        break
+                    if a_list[i] < p_set[i]: return False, 0
+                if tie: num += 1
+            return True, num
+        # two pairs
+        elif rank == 7:
+            agent_set_based_on_number = [0 for _ in range(13)]
+            agent_pair_max_list = []
+            num = 1
+            for _, number in agent_set:
+                agent_set_based_on_number[number - 1] += 1
+                if agent_set_based_on_number[number - 1] == 2: agent_pair_max_list.append(number)
+            agent_pair_max_list.sort()
+            for p in candidates:
+                p_set = list(cards)
+                p_set.append(p.card1)
+                p_set.append(p.card2)
+                p_set.sort(key = lambda x: (x[1], x[0]))
+                p_set_based_on_number = [0 for _ in range(13)]
+                p_pair_max_list = []
+                for _, number in p_set:
+                    p_set_based_on_number[number - 1] += 1
+                    if p_set_based_on_number[number - 1] == 2: p_pair_max_list.append(number)
+                p_pair_max_list.sort()
+                if p_pair_max_list[-1] > agent_pair_max_list[-1]: return False, 0
+                if p_pair_max_list[-1] < agent_pair_max_list[-1]: continue
+                if p_pair_max_list[0] > agent_pair_max_list[0]: return False, 0
+                if p_pair_max_list[0] < agent_pair_max_list[0]: continue
+                a_list = [s for (_, s) in agent_set]
+                a_list.remove(agent_pair_max_list[0])
+                a_list.remove(agent_pair_max_list[0])
+                a_list.remove(agent_pair_max_list[1])
+                a_list.remove(agent_pair_max_list[1])
+                p_set = [s for (_, s) in p_set]
+                p_set.remove(p_pair_max_list[0])
+                p_set.remove(p_pair_max_list[0])
+                p_set.remove(p_pair_max_list[1])
+                p_set.remove(p_pair_max_list[1])
+                if max(a_list) > max(p_set): continue
+                if max(a_list) < max(p_set): return False, 0
+                num += 1
+            return True, num
+        # three of a kind
+        elif rank == 6:
+            agent_set_based_on_number = [0 for _ in range(13)]
+            agent_three_max = 1
+            num = 1
+            for _, number in agent_set:
+                agent_set_based_on_number[number - 1] += 1
+                if agent_set_based_on_number[number - 1] == 3: agent_three_max = number
+            for p in candidates:
+                p_set = list(cards)
+                p_set.append(p.card1)
+                p_set.append(p.card2)
+                p_set.sort(key = lambda x: (x[1], x[0]))
+                p_set_based_on_number = [0 for _ in range(13)]
+                p_three_max = 1
+                for _, number in p_set:
+                    p_set_based_on_number[number - 1] += 1
+                    if p_set_based_on_number[number - 1] == 2: p_three_max = number
+                if p_three_max > agent_three_max: return False, 0
+                if p_three_max < agent_three_max: continue
+                tie = True
+                a_list = [s for (_, s) in agent_set]
+                a_list.remove(agent_three_max)
+                a_list.remove(agent_three_max)
+                a_list.remove(agent_three_max)
+                p_set = [s for (_, s) in p_set]
+                p_set.remove(p_three_max)
+                p_set.remove(p_three_max)
+                p_set.remove(p_three_max)
+                for i in [-1, -2]:
+                    if a_list[i] < p_set[i]: return False, 0
+                    if a_list[i] > p_set[i]:
+                        tie = False
+                        break
+                if tie: num += 1
+            return True, num
+        # straight or straight flush
+        elif (rank == 5) or (rank == 1):
+            agent_highest_straight = 1
+            agent_set_based_on_number = [0 for _ in range(13)]
+            num = 1
+            for _, number in agent_set:
+                agent_set_based_on_number[number - 1] += 1
+            for i in [12, 10, 9, 8, 7, 6, 5]:
+                if agent_set_based_on_number[i] == 0: continue
+                if agent_set_based_on_number[i - 1] == 0: continue
+                if agent_set_based_on_number[i - 2] == 0: continue
+                if agent_set_based_on_number[i - 3] == 0: continue
+                if agent_set_based_on_number[i - 4] == 0: continue
+                agent_highest_straight = i
+                break
+            for p in candidates:
+                p_set = list(cards)
+                p_set.append(p.card1)
+                p_set.append(p.card2)
+                p_set.sort(key = lambda x: (x[1], x[0]))
+                p_set_based_on_number = [0 for _ in range(13)]
+                p_highest_straight = 1
+                for _, number in p_set:
+                    p_set_based_on_number[number - 1] += 1
+                for i in [12, 10, 9, 8, 7, 6, 5]:
+                    if p_set_based_on_number[i] == 0: continue
+                    if p_set_based_on_number[i - 1] == 0: continue
+                    if p_set_based_on_number[i - 2] == 0: continue
+                    if p_set_based_on_number[i - 3] == 0: continue
+                    if p_set_based_on_number[i - 4] == 0: continue
+                    p_highest_straight = i
+                    break
+                if p_highest_straight > agent_highest_straight: return False, 0
+                if p_highest_straight == agent_highest_straight:
+                    num += 1
+            return True, num
+        # flush
+        elif rank == 4:
+            agent_based_on_color = [[], [], [], []]
+            for color, number in agent_set:
+                agent_based_on_color[color].append(number)
+            if len(agent_based_on_color[0]) == 5: agent_cards = agent_based_on_color[0]
+            elif len(agent_based_on_color[1]) == 5: agent_cards = agent_based_on_color[1]
+            elif len(agent_based_on_color[2]) == 5: agent_cards = agent_based_on_color[2]
+            else: agent_cards = agent_based_on_color[3]
+            agent_cards.sort()
+            num = 1
+            for p in candidates:
+                p_set = list(cards)
+                p_set.append(p.card1)
+                p_set.append(p.card2)
+                p_based_on_color = [[], [], [], []]
+                for color, number in p_set:
+                    p_based_on_color[color].append(number)
+                if len(p_based_on_color[0]) == 5: p_cards = p_based_on_color[0]
+                elif len(p_based_on_color[1]) == 5: p_cards = p_based_on_color[1]
+                elif len(p_based_on_color[2]) == 5: p_cards = p_based_on_color[2]
+                else: p_cards = p_based_on_color[3]
+                p_cards.sort()
+                tie = True
+                for i in [4, 3, 2, 1, 0]:
+                    if p_cards[i] > agent_cards[i]: return False, 0
+                    if p_cards[i] < agent_cards:
+                        tie = False
+                        break
+                if tie: num += 1
+                return True, num
+        # full house
+        elif rank == 3:
+            agent_set_based_on_number = [0 for _ in range(13)]
+            agent_three = 1
+            agent_two = 1
+            num = 1
+            for _, number in agent_set:
+                agent_set_based_on_number[number - 1] += 1
+            for i, n in enumerate(agent_set_based_on_number):
+                if n == 3: agent_three = i + 1
+                if n == 2: agent_two = i + 1
+            for p in candidates:
+                p_set = list(cards)
+                p_set.append(p.card1)
+                p_set.append(p.card2)
+                p_set.sort(key = lambda x: (x[1], x[0]))
+                p_set_based_on_number = [0 for _ in range(13)]
+                p_three = 1
+                p_two = 1
+                for _, number in p_set:
+                    p_set_based_on_number[number - 1] += 1
+                for i, n in enumerate(p_set_based_on_number):
+                    if n == 3: p_three = i + 1
+                    if n == 2: p_two = i + 1
+                if p_three > agent_three: return False, 0
+                if p_three < agent_three: continue
+                if p_two > agent_two: return False, 0
+                if p_two < agent_two: continue
+                num += 1
+            return True, num
+        # four of a kind
+        elif rank == 2:
+            agent_set_based_on_number = [0 for _ in range(13)]
+            agent_four = 1
+            num = 1
+            for _, number in agent_set:
+                agent_set_based_on_number[number - 1] += 1
+                if agent_set_based_on_number[number - 1] == 4: agent_four = number
+            for p in candidates:
+                p_set = list(cards)
+                p_set.append(p.card1)
+                p_set.append(p.card2)
+                p_set.sort(key = lambda x: (x[1], x[0]))
+                p_set_based_on_number = [0 for _ in range(13)]
+                p_four = 1
+                for _, number in p_set:
+                    p_set_based_on_number[number - 1] += 1
+                    if p_set_based_on_number[number - 1] == 2: p_four = number
+                if p_four > agent_four: return False, 0
+                if p_four < agent_four: continue
+                tie = True
+                a_list = [s for (_, s) in agent_set]
+                a_list.remove(agent_four)
+                a_list.remove(agent_four)
+                a_list.remove(agent_four)
+                a_list.remove(agent_four)
+                p_set = [s for (_, s) in p_set]
+                p_set.remove(p_four)
+                p_set.remove(p_four)
+                p_set.remove(p_four)
+                p_set.remove(p_four)
+                a_list.sort()
+                if max(a_list) < max(p_set): return False, 0
+                if max(a_list) > max(p_set): continue
+                num += 1
+            return True, num
+        # royal flush
+        else:
+            return True, len(candidates)
+
 
     '''
     Only computes the reward of the agent.
@@ -386,7 +664,7 @@ class game:
     '''
     def compute_reward(self) -> int:
         if self.num_player == 1: return self.chips_in_pool
-        num = 1
+        tie_list = []
         rank = self.get_rank(self.players[self.agent])
         for i, p in self.players.items():
             if i == self.agent: continue
@@ -396,8 +674,11 @@ class game:
                 return -1 * self.players[self.agent].chips
             # if ties
             if r == rank:
-                num += 1
-        return self.chips_in_pool // num
+                tie_list.append(p)
+        if len(tie_list) == 0: return self.chips_in_pool
+        win, num = self.get_winner(rank, tie_list)
+        if win: return self.chips_in_pool // num
+        return -1 * self.players[self.agent].chips
 
     '''
     The method actually draws the card.
