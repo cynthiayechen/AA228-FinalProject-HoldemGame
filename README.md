@@ -25,6 +25,7 @@ Three optional parameters for game_master.py:
 ```
 python3 game_master.py [-n <*iter*>] [-i <*input_name>] [-o <*output_name*>]
 ```
+For more information, try `python3 game_master.py -h` for the helper information.
 Ten optional parameters for game_master_more_states.py:
 - number of iterations (default 5)
 - input file name (.policy) for the agent (default big.policy)
@@ -37,3 +38,4 @@ Ten optional parameters for game_master_more_states.py:
 ```
 python3 game_master_more_states.py [-n <*iter*>] [-i <*input_name>] [-o <*output_name*>] [-g <*agent_number*>] [-a <*raise_amount*>] [-n1 <*n1*>] [-n2 <*n2*>] [-l1 <*l1*>] [-l2 <*l2*>] [-l3 <*l3*>]
 ```
+For more information, try `python3 game_master_more_states.py -h` for the helper information.
