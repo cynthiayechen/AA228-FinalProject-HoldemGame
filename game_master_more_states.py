@@ -186,6 +186,7 @@ class game:
         d = dict()
         d['s'] = self.state * 10 + self.players[self.agent].rank
         self.players[self.agent].state = d['s']
+        self.get_rank(self.players[self.agent])
         d['sp'] = (self.state + 1) * 10 + self.players[self.agent].rank
         d['a'] = 1
         if self.num_player == 1: 
@@ -215,6 +216,7 @@ class game:
         d = dict()
         d['s'] = self.state * 10 + self.players[self.agent].rank
         self.players[self.agent].state = d['s']
+        self.get_rank(self.players[self.agent])
         d['sp'] = (self.state + 1) * 10 + self.players[self.agent].rank
         d['a'] = 1
         if self.num_player == 1: 
@@ -244,6 +246,7 @@ class game:
         d = dict()
         d['s'] = self.state * 10 + self.players[self.agent].rank
         self.players[self.agent].state = d['s']
+        self.get_rank(self.players[self.agent])
         d['sp'] = (self.state + 1) * 10 + self.players[self.agent].rank
         d['a'] = 1
         if self.num_player == 1: 
@@ -256,6 +259,7 @@ class game:
         d = dict()
         d['s'] = 30 + self.players[self.agent].rank
         self.players[self.agent].state = d['s']
+        self.get_rank(self.players[self.agent])
         d['sp'] = 30 + self.players[self.agent].rank
         d['r'] = self.compute_reward()
         d['a'] = 1
@@ -780,6 +784,7 @@ class game:
                     self.players[self.agent].state = d['s']
                     d['a'] = action
                     d['r'] = -1 * self.players[self.agent].chips
+                    self.get_rank(self.players[self.agent])
                     d['sp'] = self.state * 10 + self.players[self.agent].rank
                     self.trajectory.append(d)
             elif action == 1:
@@ -795,6 +800,7 @@ class game:
                     self.players[self.agent].state = d['s']
                     d['a'] = action
                     d['r'] = -1 * self.players[self.agent].chips
+                    self.get_rank(self.players[self.agent])
                     d['sp'] = self.state * 10 + self.players[self.agent].rank
                     self.trajectory.append(d)
         if finished: return False
