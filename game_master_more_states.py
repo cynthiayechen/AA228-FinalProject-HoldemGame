@@ -6,7 +6,7 @@ import argparse
 
 COLOR = [0, 1, 2, 3] # club, spade, heart, dimond
 NUMBER = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
-FOLD = 42
+FOLD = 52
 FLOP = 10
 TURN = 20
 RIVER = 30
@@ -110,14 +110,14 @@ class agent:
 This class defines the entire game (one round) with the perspective of 
 the agent. The game follows the MDP model.
 Agent State:
-40 Before Start
-41 Compulsory Bets
+50 Before Start
+51 Compulsory Bets
 0-9 Pre Flop
 10-19 Flop
 20-29 Turn
 30-39 River
-
-42 Folding State
+40-49 After River
+52 Folding State
 
 Game State:
 0 Pre Flop
@@ -336,6 +336,58 @@ class game:
         cards.add(self.CD5)
 
         cards = set(filter(lambda item: item is not None, cards))
+
+        if len(cards) == 2:
+        	temp_card = list(cards)
+        	curr_cardset = (min(temp_card[0][1], temp_card[1][1]), max(temp_card[0][1], temp_card[1][1]))
+        	rank_4_list = [(7, 7), (9, 12), (8, 10), (7, 9), (7, 8), (6, 7)]
+	        for i in range(2, 10):
+	        	rank_4_list.append((1, i))
+        	rank_6_list = [(4, 4), (3, 3), (8, 12), (7, 10)]
+        	for i in range(3, 9):
+        		rank_6_list.append((i, 13))
+        	# rank 0 if AA, KK, QQ, JJ, AK, KA
+        	if curr_cardset in [(1, 1), (13, 13), (12, 12), (11, 11), (1, 13)]:
+        		player.rank = 0
+        		return
+        	# rank 1 if AQ AJ KQ 1010
+        	elif curr_cardset in [(10, 10), (1, 12), (1, 11), (12, 13)]:
+        		player.rank = 1
+        		return
+        	# rank 2 if 99, A10, 1311, 1211, 1110 
+        	elif curr_cardset in [(9, 9), (1, 10), (11, 13), (11, 12), (10, 11)]:
+        		player.rank = 2
+        		return
+        	# rank 3 if 88, K10, Q10, J9, 109, 98
+        	elif curr_cardset in [(8, 8), (10, 13), (10, 12), (9, 11), (9, 10), (8, 9)]:
+        		player.rank = 3
+        		return
+        	# rank 4 if 77, A9-A2, Q9, 108, 97, 87, 76
+        	elif curr_cardset in rank_4_list:
+        		player.rank = 4
+        		return
+        	# rank 5 if 66 55 9K 8J 68 57 45
+        	elif curr_cardset in [(5, 5), (6, 6), (9, 13), (8, 11), (6, 8), (5, 7), (4, 5)]:
+        		player.rank = 5
+        		return
+        	# rank 6 if 44 33 K8-K3 Q8 710 
+        	elif curr_cardset in rank_6_list:
+        		player.rank = 6
+        		return
+        	# rank 7 if 7J 69 46 22 K2
+        	elif curr_cardset in [(2, 2), (2, 13), (7, 11), (6, 9), (4, 6)]:
+        		player.rank = 7
+        		return
+        	# rank 8 if 58 47 35
+        	elif curr_cardset in [(3, 5), (5, 8), (4, 7)]:
+        		player.rank = 8
+        		return
+        	# rank 9 if 24 23 34
+        	else:
+        		player.rank = 9
+        		return
+
+
 
         while len(cards) != 7:
             cards.add((random.choice(COLOR), random.choice(NUMBER)))
