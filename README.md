@@ -43,4 +43,4 @@ For more information, try `python3 game_master_more_states.py -h` for the helper
 
 ## Note
 The .policy file for *game_master* should contain exactly 6 lines, where the 2nd to 5th line contain useful information.
-The .policy file for *game_master_more_states* should contain exactly 42 lines, where the 1st to 40th line contain useful information.
+The .policy file for *game_master_more_states* should contain exactly 52 lines, where the 1st to 50th line contain useful information.
