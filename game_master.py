@@ -298,6 +298,48 @@ class game:
 
         cards = set(filter(lambda item: item is not None, cards))
 
+
+        if len(cards) == 2:
+            temp_card = list(cards)
+            curr_cardset = (min(temp_card[0][1], temp_card[1][1]), max(temp_card[0][1], temp_card[1][1]))
+            rank_4_list = [(7, 7), (9, 12), (8, 10), (7, 9), (7, 8), (6, 7)]
+            for i in range(2, 10):
+                rank_4_list.append((1, i))
+            rank_6_list = [(4, 4), (3, 3), (8, 12), (7, 10)]
+            for i in range(3, 9):
+                rank_6_list.append((i, 13))
+            # rank 0 if AA, KK, QQ, JJ, AK, KA
+            if curr_cardset in [(1, 1), (13, 13), (12, 12), (11, 11), (1, 13)]:
+                return 0
+            # rank 1 if AQ AJ KQ 1010
+            elif curr_cardset in [(10, 10), (1, 12), (1, 11), (12, 13)]:
+                return 1
+            # rank 2 if 99, A10, 1311, 1211, 1110 
+            elif curr_cardset in [(9, 9), (1, 10), (11, 13), (11, 12), (10, 11)]:
+                return 2
+            # rank 3 if 88, K10, Q10, J9, 109, 98
+            elif curr_cardset in [(8, 8), (10, 13), (10, 12), (9, 11), (9, 10), (8, 9)]:
+                return 3
+            # rank 4 if 77, A9-A2, Q9, 108, 97, 87, 76
+            elif curr_cardset in rank_4_list:
+                return 4
+            # rank 5 if 66 55 9K 8J 68 57 45
+            elif curr_cardset in [(5, 5), (6, 6), (9, 13), (8, 11), (6, 8), (5, 7), (4, 5)]:
+                return 5
+            # rank 6 if 44 33 K8-K3 Q8 710 
+            elif curr_cardset in rank_6_list:
+                return 6
+            # rank 7 if 7J 69 46 22 K2
+            elif curr_cardset in [(2, 2), (2, 13), (7, 11), (6, 9), (4, 6)]:
+                return 7
+            # rank 8 if 58 47 35
+            elif curr_cardset in [(3, 5), (5, 8), (4, 7)]:
+                return 8
+            # rank 9 if 24 23 34
+            else:
+                return 9
+
+
         while len(cards) != 7:
             cards.add((random.choice(COLOR), random.choice(NUMBER)))
 
