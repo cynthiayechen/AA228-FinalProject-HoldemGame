@@ -338,54 +338,54 @@ class game:
         cards = set(filter(lambda item: item is not None, cards))
 
         if len(cards) == 2:
-        	temp_card = list(cards)
-        	curr_cardset = (min(temp_card[0][1], temp_card[1][1]), max(temp_card[0][1], temp_card[1][1]))
-        	rank_4_list = [(7, 7), (9, 12), (8, 10), (7, 9), (7, 8), (6, 7)]
-	        for i in range(2, 10):
-	        	rank_4_list.append((1, i))
-        	rank_6_list = [(4, 4), (3, 3), (8, 12), (7, 10)]
-        	for i in range(3, 9):
-        		rank_6_list.append((i, 13))
+            temp_card = list(cards)
+            curr_cardset = (min(temp_card[0][1], temp_card[1][1]), max(temp_card[0][1], temp_card[1][1]))
+            rank_4_list = [(7, 7), (9, 12), (8, 10), (7, 9), (7, 8), (6, 7)]
+            for i in range(2, 10):
+                rank_4_list.append((1, i))
+            rank_6_list = [(4, 4), (3, 3), (8, 12), (7, 10)]
+            for i in range(3, 9):
+                rank_6_list.append((i, 13))
         	# rank 0 if AA, KK, QQ, JJ, AK, KA
-        	if curr_cardset in [(1, 1), (13, 13), (12, 12), (11, 11), (1, 13)]:
-        		player.rank = 0
-        		return
+            if curr_cardset in [(1, 1), (13, 13), (12, 12), (11, 11), (1, 13)]:
+                player.rank = 0
+                return
         	# rank 1 if AQ AJ KQ 1010
-        	elif curr_cardset in [(10, 10), (1, 12), (1, 11), (12, 13)]:
-        		player.rank = 1
-        		return
+            elif curr_cardset in [(10, 10), (1, 12), (1, 11), (12, 13)]:
+                player.rank = 1
+                return
         	# rank 2 if 99, A10, 1311, 1211, 1110 
-        	elif curr_cardset in [(9, 9), (1, 10), (11, 13), (11, 12), (10, 11)]:
-        		player.rank = 2
-        		return
+            elif curr_cardset in [(9, 9), (1, 10), (11, 13), (11, 12), (10, 11)]:
+                player.rank = 2
+                return
         	# rank 3 if 88, K10, Q10, J9, 109, 98
-        	elif curr_cardset in [(8, 8), (10, 13), (10, 12), (9, 11), (9, 10), (8, 9)]:
-        		player.rank = 3
-        		return
+            elif curr_cardset in [(8, 8), (10, 13), (10, 12), (9, 11), (9, 10), (8, 9)]:
+                player.rank = 3
+                return
         	# rank 4 if 77, A9-A2, Q9, 108, 97, 87, 76
-        	elif curr_cardset in rank_4_list:
-        		player.rank = 4
-        		return
+            elif curr_cardset in rank_4_list:
+                player.rank = 4
+                return
         	# rank 5 if 66 55 9K 8J 68 57 45
-        	elif curr_cardset in [(5, 5), (6, 6), (9, 13), (8, 11), (6, 8), (5, 7), (4, 5)]:
-        		player.rank = 5
-        		return
+            elif curr_cardset in [(5, 5), (6, 6), (9, 13), (8, 11), (6, 8), (5, 7), (4, 5)]:
+                player.rank = 5
+                return
         	# rank 6 if 44 33 K8-K3 Q8 710 
-        	elif curr_cardset in rank_6_list:
-        		player.rank = 6
-        		return
+            elif curr_cardset in rank_6_list:
+                player.rank = 6
+                return
         	# rank 7 if 7J 69 46 22 K2
-        	elif curr_cardset in [(2, 2), (2, 13), (7, 11), (6, 9), (4, 6)]:
-        		player.rank = 7
-        		return
+            elif curr_cardset in [(2, 2), (2, 13), (7, 11), (6, 9), (4, 6)]:
+                player.rank = 7
+                return
         	# rank 8 if 58 47 35
-        	elif curr_cardset in [(3, 5), (5, 8), (4, 7)]:
-        		player.rank = 8
-        		return
+            elif curr_cardset in [(3, 5), (5, 8), (4, 7)]:
+                player.rank = 8
+                return
         	# rank 9 if 24 23 34
-        	else:
-        		player.rank = 9
-        		return
+            else:
+                player.rank = 9
+                return
 
 
 
@@ -896,6 +896,7 @@ class game:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument("-s", "--simulator", help="simulator mode (calculate score)", action='store_true')
     parser.add_argument("-n", "--iterations", help="number of iterations", type=int, required=False, default=5)
     parser.add_argument("-i", "--input", help="input file", type=str, required=False, default='big.policy')
     parser.add_argument("-o", "--output", help="output file", type=str, required=False, default='big.csv')
@@ -907,23 +908,19 @@ if __name__ == "__main__":
     parser.add_argument("-l2", "--l2", help="l2", type=int, required=False, default=20)
     parser.add_argument("-l3", "--l3", help="l3", type=int, required=False, default=10)
     args = parser.parse_args()
+    score = 0
     for i in range(args.iterations):
-        print("Round {}:".format(i))
-        g = game(agent_no = args.agent_number, agent_policy = args.input, iter = i, raise_amount= args.raise_amount, n1 = args.n1, n2 = args.n2, l1 = args.l1, l2 = args.l2, l3 = args.l3)
-        print(g.start_game())
+        g = game(agent_policy = args.input, iter = i)
+        s = g.start_game()
         # print(g.players)
         # print(g.CD1, g.CD2, g.CD3, g.CD4, g.CD5)
         # print(g.chips_in_pool)
-        # print(g.trajectory)
-        g.output_to_file(args.output)
-    # l = [(2, 4), (3, 8), (1, 11), (1, 1), (3, 3), (0, 5), (1, 9)]
-    # g = game(agent_policy='random')
-    # g.CD1 = l[0]
-    # g.CD2 = l[1]
-    # g.CD3 = l[2]
-    # g.CD4 = l[3]
-    # g.CD5 = l[4]
-    # g.players[g.agent].card1 = l[5]
-    # g.players[g.agent].card2 = l[6]
-    # g.get_rank(g.players[g.agent])
-    # print(g.players[g.agent].rank)
+        if args.simulator:
+            score += s
+        else:
+            print("Round {}:".format(i))
+            print(s)
+            print(g.trajectory)
+            g.output_to_file(args.output)
+    if args.simulator:
+        print(score / args.iterations)

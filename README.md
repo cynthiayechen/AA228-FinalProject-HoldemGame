@@ -18,25 +18,27 @@ Policy Learner for poker Texas Holdem with our self implemented game simulator
 ```
 
 ## Running the simulator
-Three optional parameters for game_master.py:
+Four optional parameters for game_master.py:
 - number of iterations (default 5)
 - input file name (.policy) for the agent (default small.policy)
 - output file name (.csv) to output state transitions (default small.csv)
+- whether in simulator mode or not
 ```
 python3 game_master.py [-n <*iter*>] [-i <*input_name>] [-o <*output_name*>]
 ```
 For more information, try `python3 game_master.py -h` for the helper information.
-Ten optional parameters for game_master_more_states.py:
+Eleven optional parameters for game_master_more_states.py:
 - number of iterations (default 5)
 - input file name (.policy) for the agent (default big.policy)
 - output file name (.csv) to output state transitions (default big.csv)
 - the number of the agent assming big blind has number -2 and small blind has number -1 (default 0)
 - the amount per raise (default 5)
+- whether in simulator mode or not
 - 5 parameters defining behavior of a non-agent player (default 8 9 70 20 10)
     - n1 and n2 define three disjoint intervals of the ranking
     - l1 through l3 define three percentages, need to add up to 100
 ```
-python3 game_master_more_states.py [-n <*iter*>] [-i <*input_name>] [-o <*output_name*>] [-g <*agent_number*>] [-a <*raise_amount*>] [-n1 <*n1*>] [-n2 <*n2*>] [-l1 <*l1*>] [-l2 <*l2*>] [-l3 <*l3*>]
+python3 game_master_more_states.py [-n <*iter*>] [-i <*input_name>] [-o <*output_name*>] [-g <*agent_number*>] [-a <*raise_amount*>] [-n1 <*n1*>] [-n2 <*n2*>] [-l1 <*l1*>] [-l2 <*l2*>] [-l3 <*l3*>] [-s]
 ```
 For more information, try `python3 game_master_more_states.py -h` for the helper information.
 

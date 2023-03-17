@@ -603,9 +603,9 @@ class game:
             agent_based_on_color = [[], [], [], []]
             for color, number in agent_set:
                 agent_based_on_color[color].append(number)
-            if len(agent_based_on_color[0]) == 5: agent_cards = agent_based_on_color[0]
-            elif len(agent_based_on_color[1]) == 5: agent_cards = agent_based_on_color[1]
-            elif len(agent_based_on_color[2]) == 5: agent_cards = agent_based_on_color[2]
+            if len(agent_based_on_color[0]) >= 5: agent_cards = agent_based_on_color[0]
+            elif len(agent_based_on_color[1]) >= 5: agent_cards = agent_based_on_color[1]
+            elif len(agent_based_on_color[2]) >= 5: agent_cards = agent_based_on_color[2]
             else: agent_cards = agent_based_on_color[3]
             agent_cards.sort()
             num = 1
@@ -616,15 +616,15 @@ class game:
                 p_based_on_color = [[], [], [], []]
                 for color, number in p_set:
                     p_based_on_color[color].append(number)
-                if len(p_based_on_color[0]) == 5: p_cards = p_based_on_color[0]
-                elif len(p_based_on_color[1]) == 5: p_cards = p_based_on_color[1]
-                elif len(p_based_on_color[2]) == 5: p_cards = p_based_on_color[2]
+                if len(p_based_on_color[0]) >= 5: p_cards = p_based_on_color[0]
+                elif len(p_based_on_color[1]) >= 5: p_cards = p_based_on_color[1]
+                elif len(p_based_on_color[2]) >= 5: p_cards = p_based_on_color[2]
                 else: p_cards = p_based_on_color[3]
                 p_cards.sort()
                 tie = True
                 for i in [4, 3, 2, 1, 0]:
                     if p_cards[i] > agent_cards[i]: return False, 0
-                    if p_cards[i] < agent_cards:
+                    if p_cards[i] < agent_cards[i]:
                         tie = False
                         break
                 if tie: num += 1
@@ -822,16 +822,24 @@ class game:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument("-s", "--simulator", help="simulator mode (calculate score)", action='store_true')
     parser.add_argument("-n", "--iterations", help="number of iterations", type=int, required=False, default=5)
     parser.add_argument("-i", "--input", help="input file", type=str, required=False, default='small.policy')
     parser.add_argument("-o", "--output", help="output file", type=str, required=False, default='small.csv')
     args = parser.parse_args()
+    score = 0
     for i in range(args.iterations):
-        print("Round {}:".format(i))
         g = game(agent_policy = args.input, iter = i)
-        print(g.start_game())
+        s = g.start_game()
         # print(g.players)
         # print(g.CD1, g.CD2, g.CD3, g.CD4, g.CD5)
         # print(g.chips_in_pool)
-        print(g.trajectory)
-        g.output_to_file(args.output)
+        if args.simulator:
+            score += s
+        else:
+            print("Round {}:".format(i))
+            print(s)
+            print(g.trajectory)
+            g.output_to_file(args.output)
+    if args.simulator:
+        print(score / args.iterations)
