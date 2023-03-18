@@ -257,10 +257,10 @@ class game:
         self.trajectory.append(d)
 
         d = dict()
-        d['s'] = 30 + self.players[self.agent].rank
+        d['s'] = RIVER + self.players[self.agent].rank
         self.players[self.agent].state = d['s']
         self.get_rank(self.players[self.agent])
-        d['sp'] = 30 + self.players[self.agent].rank
+        d['sp'] = RIVER + 10 + self.players[self.agent].rank
         d['r'] = self.compute_reward()
         d['a'] = 1
         self.trajectory.append(d)
