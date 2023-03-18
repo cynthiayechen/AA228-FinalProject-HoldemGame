@@ -389,8 +389,8 @@ class game:
 
 
 
-        while len(cards) != 7:
-            cards.add((random.choice(COLOR), random.choice(NUMBER)))
+        # while len(cards) != 7:
+        #     cards.add((random.choice(COLOR), random.choice(NUMBER)))
 
         # start working on finding highest rank
         cards = list(cards)
