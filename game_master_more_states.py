@@ -906,7 +906,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     score = 0
     for i in range(args.iterations):
-        g = game(l = [args.rank_division[0], args.rank_division[1], args.prob1_param, args.prob2_param, args.prob3_param], agent_policy = args.input, iter = i)
+        g = game(l = [args.rank_division[0], args.rank_division[1], args.prob1_param, args.prob2_param, args.prob3_param], agent_policy = args.input, iter = i, raise_amount = args.raise_amount, agent_no = args.agent_number)
         s = g.start_game()
         # print(g.players)
         # print(g.CD1, g.CD2, g.CD3, g.CD4, g.CD5)

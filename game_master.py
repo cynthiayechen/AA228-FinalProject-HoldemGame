@@ -830,6 +830,8 @@ if __name__ == "__main__":
     parser.add_argument("-n", "--iterations", help="number of iterations", type=int, required=False, default=5)
     parser.add_argument("-i", "--input", help="input file", type=str, required=False, default='small.policy')
     parser.add_argument("-o", "--output", help="output file", type=str, required=False, default='small.csv')
+    parser.add_argument("-g", "--agent_number", help="agent number", type=int, required=False, default=0)
+    parser.add_argument("-a", "--raise_amount", help="raise amount", type=int, required=False, default=5)
     parser.add_argument("-n1n2", "--rank_division", help="dividing rankings defining behavior of nonagent players", type=int, required=False, default=[3, 7], nargs='+')
     parser.add_argument("-p1", "--prob1_param", help="probability parameter of actions taken in rank 1", type=int, required=False, default=[90,9,1], nargs='+')
     parser.add_argument("-p2", "--prob2_param", help="probability parameter of actions taken in rank 1", type=int, required=False, default=[40,50,10], nargs='+')
@@ -837,7 +839,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     score = 0
     for i in range(args.iterations):
-        g = game(l = [args.rank_division[0], args.rank_division[1], args.prob1_param, args.prob2_param, args.prob3_param], agent_policy = args.input, iter = i)
+        g = game(l = [args.rank_division[0], args.rank_division[1], args.prob1_param, args.prob2_param, args.prob3_param], agent_policy = args.input, iter = i, raise_amount = args.raise_amount, agent_no = args.agent_number)
         s = g.start_game()
         # print(g.players)
         # print(g.CD1, g.CD2, g.CD3, g.CD4, g.CD5)
