@@ -827,15 +827,15 @@ class game:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-s", "--simulator", help="simulator mode (calculate score)", action='store_true')
-    parser.add_argument("-n", "--iterations", help="number of iterations", type=int, required=False, default=5)
+    parser.add_argument("-n", "--iterations", help="number of iterations", type=int, required=False, default=10000)
     parser.add_argument("-i", "--input", help="input file", type=str, required=False, default='small.policy')
     parser.add_argument("-o", "--output", help="output file", type=str, required=False, default='small.csv')
     parser.add_argument("-g", "--agent_number", help="agent number", type=int, required=False, default=0)
     parser.add_argument("-a", "--raise_amount", help="raise amount", type=int, required=False, default=5)
     parser.add_argument("-n1n2", "--rank_division", help="dividing rankings defining behavior of nonagent players", type=int, required=False, default=[3, 7], nargs='+')
     parser.add_argument("-p1", "--prob1_param", help="probability parameter of actions taken in rank 1", type=int, required=False, default=[90,9,1], nargs='+')
-    parser.add_argument("-p2", "--prob2_param", help="probability parameter of actions taken in rank 1", type=int, required=False, default=[40,50,10], nargs='+')
-    parser.add_argument("-p3", "--prob3_param", help="probability parameter of actions taken in rank 1", type=int, required=False, default=[10,80,10], nargs='+')
+    parser.add_argument("-p2", "--prob2_param", help="probability parameter of actions taken in rank 2", type=int, required=False, default=[40,50,10], nargs='+')
+    parser.add_argument("-p3", "--prob3_param", help="probability parameter of actions taken in rank 3", type=int, required=False, default=[10,80,10], nargs='+')
     args = parser.parse_args()
     score = 0
     for i in range(args.iterations):
@@ -847,9 +847,9 @@ if __name__ == "__main__":
         if args.simulator:
             score += s
         else:
-            print("Round {}:".format(i))
-            print(s)
-            print(g.trajectory)
+            # print("Round {}:".format(i))
+            # print(s)
+            # print(g.trajectory)
             g.output_to_file(args.output)
     if args.simulator:
         print(score / args.iterations)

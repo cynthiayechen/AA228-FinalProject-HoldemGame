@@ -894,7 +894,7 @@ class game:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-s", "--simulator", help="simulator mode (calculate score)", action='store_true')
-    parser.add_argument("-n", "--iterations", help="number of iterations", type=int, required=False, default=5)
+    parser.add_argument("-n", "--iterations", help="number of iterations", type=int, required=False, default=10000)
     parser.add_argument("-i", "--input", help="input file", type=str, required=False, default='big.policy')
     parser.add_argument("-o", "--output", help="output file", type=str, required=False, default='big.csv')
     parser.add_argument("-g", "--agent_number", help="agent number", type=int, required=False, default=0)
@@ -914,9 +914,9 @@ if __name__ == "__main__":
         if args.simulator:
             score += s
         else:
-            print("Round {}:".format(i))
-            print(s)
-            print(g.trajectory)
+            # print("Round {}:".format(i))
+            # print(s)
+            # print(g.trajectory)
             g.output_to_file(args.output)
     if args.simulator:
         print(score / args.iterations)
