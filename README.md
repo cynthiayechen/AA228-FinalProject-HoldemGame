@@ -51,3 +51,4 @@ The .policy file for *game_master_more_states* should contain exactly 52 lines, 
 ```
 python3 policy_model.py
 ```
+which will generate new big_q_learning.policy, big_sarsa_learning.policy, small_q_learning.policy, and small_sarsa_learning.policy with current big.csv and small.csv as the input file.
