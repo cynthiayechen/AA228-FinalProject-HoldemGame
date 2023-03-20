@@ -129,10 +129,9 @@ For simplicity, let small blind to be player -2, and big blind to be player -1.
 Need to pass in the player number of the agent, default to be 0.
 '''
 class game:
-    def __init__(self, agent_no = 0, num_player = 4, raise_amount = 5, agent_policy = 'random', iter = 0, n1 = 8, n2 = 9, l1 = 70, l2 = 20, l3 = 10) -> None:
+    def __init__(self, l, agent_no = 0, num_player = 4, raise_amount = 5, agent_policy = 'random', iter = 0, n1 = 8, n2 = 9, l1 = 70, l2 = 20, l3 = 10) -> None:
         self.num_player = num_player
-        n1, n2, p1, p2, p3 = 3, 7, [90, 9, 1], [40, 50, 10], [10, 80, 10]
-        self.players = dict([(i,player([n1, n2, p1, p2, p3])) for i in range(num_player)]) # clockwise
+        self.players = dict([(i,player(l)) for i in range(num_player)]) # clockwise
         self.agent = agent_no
         self.raise_amount = raise_amount
         self.players[self.agent] = agent(strategy=agent_policy)
@@ -900,15 +899,14 @@ if __name__ == "__main__":
     parser.add_argument("-o", "--output", help="output file", type=str, required=False, default='big.csv')
     parser.add_argument("-g", "--agent_number", help="agent number", type=int, required=False, default=0)
     parser.add_argument("-a", "--raise_amount", help="raise amount", type=int, required=False, default=5)
-    parser.add_argument("-n1", "--n1", help="n1", type=int, required=False, default=8)
-    parser.add_argument("-n2", "--n2", help="n2", type=int, required=False, default=9)
-    parser.add_argument("-l1", "--l1", help="l1", type=int, required=False, default=70)
-    parser.add_argument("-l2", "--l2", help="l2", type=int, required=False, default=20)
-    parser.add_argument("-l3", "--l3", help="l3", type=int, required=False, default=10)
+    parser.add_argument("-n1n2", "--rank_division", help="dividing rankings defining behavior of nonagent players", type=int, required=False, default=[3, 7], nargs='+')
+    parser.add_argument("-p1", "--prob1_param", help="probability parameter of actions taken in rank 1", type=int, required=False, default=[90,9,1], nargs='+')
+    parser.add_argument("-p2", "--prob2_param", help="probability parameter of actions taken in rank 1", type=int, required=False, default=[40,50,10], nargs='+')
+    parser.add_argument("-p3", "--prob3_param", help="probability parameter of actions taken in rank 1", type=int, required=False, default=[10,80,10], nargs='+')
     args = parser.parse_args()
     score = 0
     for i in range(args.iterations):
-        g = game(agent_policy = args.input, iter = i)
+        g = game(l = [args.rank_division[0], args.rank_division[1], args.prob1_param, args.prob2_param, args.prob3_param], agent_policy = args.input, iter = i)
         s = g.start_game()
         # print(g.players)
         # print(g.CD1, g.CD2, g.CD3, g.CD4, g.CD5)
