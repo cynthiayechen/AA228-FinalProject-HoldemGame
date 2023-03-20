@@ -18,30 +18,22 @@ Policy Learner for poker Texas Holdem with our self implemented game simulator
 ```
 
 ## Running the simulator
-Four optional parameters for game_master.py:
-- number of iterations (default 5)
-- input file name (.policy) for the agent (default small.policy)
-- output file name (.csv) to output state transitions (default small.csv)
-- whether in simulator mode or not
+`game_master.py` and `game_master_more_states.py` are the two simulators. The first one runs the simulator for the 6-state simulator, while the latter onr refers to the 52-state simulator. They have the same set of potential command line arguments. Here is the explanation for `game_master.py`:
+Four optional command line arguments:
+- -s: whether in simulator mode or not
+- -n: number of iterations (default 10000)
+- -i: input file name (.policy) for the agent (default small.policy)
+- -o: output file name (.csv) to output state transitions (default small.csv)
+- -g: the position of the agent player (default 0)
+- -a: the raise amount (default 5)
+- -n1n2: two ints indicating the rank division (default [3, 7])
+- -p1: three ints indicating raising, checking, folding probabilities in rank 1 (default [90, 9, 1])
+- -p2: three ints indicating raising, checking, folding probabilities in rank 2 (default [40, 50, 10])
+- -p3: three ints indicating raising, checking, folding probabilities in rank 3 (default [10, 80, 10])
 ```
-python3 game_master.py [-n <*iter*>] [-i <*input_name>] [-o <*output_name*>]
+python3 game_master.py [-s] [-n <*iter*>] [-i <*input_name>] [-o <*output_name*>] [-g <*agent_number*>] [-a <*raise_amount*>] [-n1n2 <*n1 n2*>] [-p1 <*a b c*>] [-p2 <*a b c*>] [-p3 <*a b c*>]
 ```
 For more information, try `python3 game_master.py -h` for the helper information.
-Eleven optional parameters for game_master_more_states.py:
-- number of iterations (default 5)
-- input file name (.policy) for the agent (default big.policy)
-- output file name (.csv) to output state transitions (default big.csv)
-- the number of the agent assming big blind has number -2 and small blind has number -1 (default 0)
-- the amount per raise (default 5)
-- whether in simulator mode or not
-- 5 parameters defining behavior of a non-agent player (default 8 9 70 20 10)
-    - n1 and n2 define three disjoint intervals of the ranking
-    - l1 through l3 define three percentages, need to add up to 100
-```
-python3 game_master_more_states.py [-n <*iter*>] [-i <*input_name>] [-o <*output_name*>] [-g <*agent_number*>] [-a <*raise_amount*>] [-n1 <*n1*>] [-n2 <*n2*>] [-l1 <*l1*>] [-l2 <*l2*>] [-l3 <*l3*>] [-s]
-```
-For more information, try `python3 game_master_more_states.py -h` for the helper information.
-
 
 ## Note
 The .policy file for *game_master* should contain exactly 6 lines, where the 2nd to 5th line contain useful information.
