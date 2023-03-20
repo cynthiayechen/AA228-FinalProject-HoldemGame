@@ -20,12 +20,16 @@ to define the actions, where 1 <= num1 < num2 < 10, and num1 and num2 are rankin
 The above numbers (10, 20, 70) can be modified.
 '''
 class player:
-    def __init__(self, n1, n2) -> None:
+    def __init__(self, l) -> None:
+        n1, n2, p1, p2, p3 = l
         assert 1 <= n1
         assert n1 < n2
         assert n2 < 10
         self.n1 = n1
         self.n2 = n2
+        self.p1 = p1
+        self.p2 = p2
+        self.p3 = p3
         self.chips = 0 # used chips
         self.card1 = None
         self.card2 = None
@@ -39,11 +43,11 @@ class player:
     def get_action(self, ranks) -> int:
         p = random.randint(0, 99)
         if ranks <= self.n1:
-            return ([0]*70 + [1]*20 + [2]*10)[p]
+            return ([0] * self.p1[0] + [1] * self.p1[1] + [2] * self.p1[2])[p]
         elif ranks <= self.n2:
-            return ([1]*70 + [0]*20 + [2]*10)[p]
+            return ([0] * self.p2[0] + [1] * self.p2[1] + [2] * self.p2[2])[p]
         else:
-            return ([2]*70 + [1]*20 + [0]*10)[p]
+            return ([0] * self.p3[0] + [1] * self.p3[1] + [2] * self.p3[2])[p]
 
     def __repr__(self) -> str:
         return 'Player has used {} chips, and has cards {} and {}\n'.format(self.chips, self.card1, self.card2)
@@ -107,7 +111,8 @@ Need to pass in the player number of the agent, default to be 0.
 class game:
     def __init__(self, agent_no = 0, num_player = 4, raise_amount = 5, agent_policy = 'random', iter = 0) -> None:
         self.num_player = num_player
-        self.players = dict([(i,player(3, 7)) for i in range(num_player)]) # clockwise
+        n1, n2, p1, p2, p3 = 3, 7, [90, 9, 1], [40, 50, 10], [10, 80, 10]
+        self.players = dict([(i,player([n1, n2, p1, p2, p3])) for i in range(num_player)]) # clockwise
         self.agent = agent_no
         self.raise_amount = raise_amount
         self.players[self.agent] = agent(strategy=agent_policy)
