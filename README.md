@@ -1,6 +1,8 @@
 # AA228-FinalProject-HoldemGame
 Final Project for CS238/AA228 Decision Making Under Uncertainty
 
+Read the [paper](AA228_Final_Project.pdf)
+
 Policy Learner for poker Texas Holdem with our self implemented game simulator
 
 ## File Structure
