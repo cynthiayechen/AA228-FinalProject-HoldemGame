@@ -35,7 +35,7 @@ Ten optional command line arguments:
 - -s: whether in simulator mode or not
 - -n: number of iterations (default 10000)
 - -i: input file name (.policy) for the agent (default data/random_policy_small.policy)
-- -o: output file name (.csv) to output state transitions (default small.csv)
+- -o: output file name (.csv) to output state transitions (default data/small.csv)
 - -g: the position of the agent player (default 0)
 - -a: the raise amount (default 5)
 - -n1n2: two ints indicating the rank division (default [3, 7])
