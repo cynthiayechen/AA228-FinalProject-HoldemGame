@@ -11,6 +11,7 @@ Policy Learner for poker Texas Holdem with our self implemented game simulator
 .
 ├── LICENSE
 ├── README.md                   // this file
+├── AA228_Final_Project.pdf     // the PDF file containing our final project paper with some results and analysis
 ├── game_master.py              // the game simulator for Texas Holdem
 ├── game_master_more_states.py  // the game simulator with more transition states for Texas Holdem
 ├── policy_model.py             // the policy model contains sarsa & q-learning algorithm
