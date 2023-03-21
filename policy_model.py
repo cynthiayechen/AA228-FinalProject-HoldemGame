@@ -12,7 +12,7 @@ def sarsa(input_csv, number_of_states, number_of_actions=3, input_discount=0.95,
     # action value function
     Q = np.zeros((state_space, action_space))
 
-    with open("data/" + input_csv, "r") as f:
+    with open(input_csv, "r") as f:
         reader = csv.reader(f, delimiter="\t")
         for i, line in enumerate(reader):
             if i != 0:
@@ -44,7 +44,7 @@ def q_learning_with_epsilon_greedy_exploration(input_csv, number_of_states, numb
     # action value function
     Q = np.zeros((state_space, action_space))
 
-    with open("data/" + input_csv, "r") as f:
+    with open(input_csv, "r") as f:
         reader = csv.reader(f, delimiter="\t")
         for i, line in enumerate(reader):
             if i != 0:
@@ -80,7 +80,7 @@ def q_learning(input_csv, number_of_states, number_of_actions=3, input_discount=
     # action value function
     Q = np.zeros((state_space, action_space))
 
-    with open("data/" + input_csv, "r") as f:
+    with open(input_csv, "r") as f:
         reader = csv.reader(f, delimiter="\t")
         for i, line in enumerate(reader):
             if i != 0:
@@ -97,6 +97,7 @@ def q_learning(input_csv, number_of_states, number_of_actions=3, input_discount=
         for j in Q[i]:
             if j != 0:
                 flag_no_actions_rewards = False
+        # policy[i] = random.randint(0, number_of_actions - 1)
         # there are some states in the medium and large problems that do not have
         # actions and rewards associated with them in the data provided
         if flag_no_actions_rewards:
@@ -109,15 +110,31 @@ def q_learning(input_csv, number_of_states, number_of_actions=3, input_discount=
 
 if __name__ == '__main__':
     # number_of_states = 6
+    # small_q_learning = q_learning("small.csv", 6)
+    #
+    # with open('data/random_policy_small.policy', 'w') as f:
+    #     for line in small_q_learning:
+    #         f.write("%s\n" % str(int(line)))
     small_q_learning = q_learning("small.csv", 6)
 
-    with open('data/small_q_learning.policy', 'w') as f:
+    with open('small_q_learning.policy', 'w') as f:
         for line in small_q_learning:
             f.write("%s\n" % str(int(line)))
 
+    small_sarsa_learning = sarsa("small.csv", 6)
+
+    with open('small_sarsa_learning.policy', 'w') as f:
+        for line in small_sarsa_learning:
+            f.write("%s\n" % str(int(line)))
     # number_of_states = 52
     big_q_learning = q_learning("big.csv", 52)
 
-    with open('data/big_q_learning.policy', 'w') as f:
+    with open('big_q_learning.policy', 'w') as f:
         for line in big_q_learning:
+            f.write("%s\n" % str(int(line)))
+
+    big_sarsa_learning = sarsa("big.csv", 52)
+
+    with open('big_sarsa_learning.policy', 'w') as f:
+        for line in big_sarsa_learning:
             f.write("%s\n" % str(int(line)))
