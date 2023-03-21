@@ -115,26 +115,26 @@ if __name__ == '__main__':
     # with open('data/random_policy_small.policy', 'w') as f:
     #     for line in small_q_learning:
     #         f.write("%s\n" % str(int(line)))
-    small_q_learning = q_learning("small.csv", 6)
+    small_q_learning = q_learning("/data/small.csv", 6)
 
-    with open('small_q_learning.policy', 'w') as f:
+    with open('/data/small_q_learning.policy', 'w') as f:
         for line in small_q_learning:
             f.write("%s\n" % str(int(line)))
 
-    small_sarsa_learning = sarsa("small.csv", 6)
+    small_sarsa_learning = sarsa("/data/small.csv", 6)
 
-    with open('small_sarsa_learning.policy', 'w') as f:
+    with open('/data/small_sarsa_learning.policy', 'w') as f:
         for line in small_sarsa_learning:
             f.write("%s\n" % str(int(line)))
     # number_of_states = 52
-    big_q_learning = q_learning("big.csv", 52)
+    big_q_learning = q_learning("/data/big.csv", 52)
 
-    with open('big_q_learning.policy', 'w') as f:
+    with open('/data/big_q_learning.policy', 'w') as f:
         for line in big_q_learning:
             f.write("%s\n" % str(int(line)))
 
-    big_sarsa_learning = sarsa("big.csv", 52)
+    big_sarsa_learning = sarsa("/data/big.csv", 52)
 
-    with open('big_sarsa_learning.policy', 'w') as f:
+    with open('/data/big_sarsa_learning.policy', 'w') as f:
         for line in big_sarsa_learning:
             f.write("%s\n" % str(int(line)))
